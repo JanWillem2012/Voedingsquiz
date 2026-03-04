@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voedingsquiz — Slim Eten</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --card: #1c2330;
+    --accent: #4ade80;
+    --accent2: #facc15;
+    --wrong: #f87171;
+    --text: #f0f6fc;
+    --muted: #8b949e;
+    --border: #30363d;
+    --radius: 16px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(74,222,128,0.12), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(250,204,21,0.07), transparent);
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+    animation: fadeDown 0.7s ease both;
+  }
+  .header .badge {
+    display: inline-block;
+    background: rgba(74,222,128,0.15);
+    border: 1px solid rgba(74,222,128,0.35);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 14px;
+    border-radius: 99px;
+    margin-bottom: 16px;
+  }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+  }
+  .header h1 span { color: var(--accent); }
+  .header p {
+    color: var(--muted);
+    margin-top: 10px;
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  /* ── Progress ── */
+  .progress-wrap {
+    width: 100%;
+    max-width: 660px;
+    margin-bottom: 20px;
+    animation: fadeDown 0.7s 0.1s ease both;
+  }
+  .progress-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  .progress-bar-bg {
+    height: 5px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+
+  /* ── Card ── */
+  .quiz-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 660px;
+    width: 100%;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    animation: slideUp 0.5s ease both;
+  }
+
+  .question-number {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  .question-text {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.1rem, 2.5vw, 1.45rem);
+    font-weight: 700;
+    line-height: 1.45;
+    margin-bottom: 28px;
+    color: var(--text);
+  }
+
+  /* ── Options ── */
+  .options { display: flex; flex-direction: column; gap: 12px; }
+
+  .option {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px 20px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+    position: relative;
+    overflow: hidden;
+  }
+  .option::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .option:hover:not(.locked)::before { opacity: 0.04; }
+  .option:hover:not(.locked) { border-color: rgba(74,222,128,0.45); transform: translateY(-1px); }
+
+  .option-letter {
+    width: 34px;
+    height: 34px;
+    min-width: 34px;
+    border-radius: 10px;
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 13px;
+    color: var(--muted);
+    transition: all 0.2s;
+    position: relative;
+    z-index: 1;
+  }
+  .option-text {
+    font-size: 14.5px;
+    line-height: 1.5;
+    color: var(--text);
+    font-weight: 400;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* States */
+  .option.correct {
+    border-color: var(--accent);
+    background: rgba(74,222,128,0.08);
+  }
+  .option.correct .option-letter {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #0d1117;
+    font-weight: 700;
+  }
+  .option.wrong {
+    border-color: var(--wrong);
+    background: rgba(248,113,113,0.07);
+  }
+  .option.wrong .option-letter {
+    background: var(--wrong);
+    border-color: var(--wrong);
+    color: #fff;
+    font-weight: 700;
+  }
+  .option.locked { cursor: default; }
+  .option.locked:hover { transform: none; }
+
+  /* ── Feedback ── */
+  .feedback {
+    margin-top: 20px;
+    padding: 16px 20px;
+    border-radius: var(--radius);
+    font-size: 14px;
+    line-height: 1.55;
+    display: none;
+    animation: fadeIn 0.3s ease;
+  }
+  .feedback.show { display: flex; align-items: flex-start; gap: 10px; }
+  .feedback.correct-fb {
+    background: rgba(74,222,128,0.1);
+    border: 1px solid rgba(74,222,128,0.3);
+    color: #86efac;
+  }
+  .feedback.wrong-fb {
+    background: rgba(248,113,113,0.09);
+    border: 1px solid rgba(248,113,113,0.3);
+    color: #fca5a5;
+  }
+  .feedback-icon { font-size: 18px; line-height: 1; }
+
+  /* ── Next Button ── */
+  .btn-next {
+    display: none;
+    margin-top: 24px;
+    width: 100%;
+    padding: 16px;
+    background: var(--accent);
+    color: #0d1117;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    letter-spacing: 0.3px;
+    transition: all 0.2s ease;
+  }
+  .btn-next:hover { background: #86efac; transform: translateY(-1px); }
+  .btn-next.show { display: block; animation: fadeIn 0.4s ease; }
+
+  /* ── Result Screen ── */
+  #result {
+    display: none;
+    text-align: center;
+    max-width: 580px;
+    width: 100%;
+    animation: slideUp 0.5s ease;
+  }
+  .result-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  }
+  .score-ring {
+    width: 130px;
+    height: 130px;
+    margin: 0 auto 28px;
+    position: relative;
+  }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring circle {
+    fill: none;
+    stroke-width: 8;
+    cx: 65;
+    cy: 65;
+    r: 58;
+  }
+  .ring-bg { stroke: var(--border); }
+  .ring-fill {
+    stroke: var(--accent);
+    stroke-linecap: round;
+    stroke-dasharray: 364.4;
+    stroke-dashoffset: 364.4;
+    transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1) 0.3s;
+  }
+  .score-num {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--text);
+  }
+  .result-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+  }
+  .result-card p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+    max-width: 400px;
+    margin: 0 auto 28px;
+  }
+  .result-stats {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 22px;
+    min-width: 100px;
+  }
+  .stat-val {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .stat-val.g { color: var(--accent); }
+  .stat-val.r { color: var(--wrong); }
+  .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 0.5px; }
+  .btn-restart {
+    padding: 16px 36px;
+    background: var(--accent);
+    color: #0d1117;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-restart:hover { background: #86efac; transform: translateY(-1px); }
+
+  /* ── Start Screen ── */
+  #start {
+    text-align: center;
+    max-width: 560px;
+    width: 100%;
+    animation: slideUp 0.5s ease;
+  }
+  .start-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 48px 40px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  }
+  .start-icon { font-size: 52px; margin-bottom: 20px; }
+  .start-card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 12px;
+  }
+  .start-card p {
+    color: var(--muted);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+  .start-meta {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .meta-chip {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 6px 16px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-start {
+    padding: 17px 44px;
+    background: var(--accent);
+    color: #0d1117;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.2px;
+  }
+  .btn-start:hover { background: #86efac; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(74,222,128,0.25); }
+
+  /* ── Animations ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  #quiz { display: none; width: 100%; max-width: 660px; }
+</style>
+</head>
+<body>
+
+<!-- ── START ── -->
+<div id="start">
+  <div class="header">
+    <div class="badge">🥦 Voedingsquiz</div>
+    <h1>Slim <span>Eten</span></h1>
+    <p>Test jouw kennis over suiker, etiketten & gezonde keuzes</p>
+  </div>
+  <div class="start-card">
+    <div class="start-icon">🧠</div>
+    <h2>Ben jij een voedingsexpert?</h2>
+    <p>10 vragen over suikers, supermarkttrucjes, etiketten lezen en gezond eten. Hoe goed ken jij jouw eten?</p>
+    <div class="start-meta">
+      <div class="meta-chip">📋 10 vragen</div>
+      <div class="meta-chip">⚡ Meerkeuze</div>
+      <div class="meta-chip">🏆 Direct resultaat</div>
+    </div>
+    <button class="btn-start" onclick="startQuiz()">Start de quiz →</button>
+  </div>
+</div>
+
+<!-- ── QUIZ ── -->
+<div id="quiz">
+  <div class="header" style="margin-bottom:20px;">
+    <div class="badge">🥦 Voedingsquiz</div>
+    <h1>Slim <span>Eten</span></h1>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-meta">
+      <span id="qLabel">Vraag 1 van 10</span>
+      <span id="scoreLabel">Score: 0</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progressFill" style="width:10%"></div>
+    </div>
+  </div>
+  <div class="quiz-card">
+    <div class="question-number" id="qNum">Vraag 1</div>
+    <div class="question-text" id="qText"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback">
+      <span class="feedback-icon" id="fbIcon"></span>
+      <span id="fbText"></span>
+    </div>
+    <button class="btn-next" id="btnNext" onclick="nextQuestion()">Volgende vraag →</button>
+  </div>
+</div>
+
+<!-- ── RESULT ── -->
+<div id="result">
+  <div class="header" style="margin-bottom:20px;">
+    <div class="badge">🥦 Voedingsquiz</div>
+    <h1>Slim <span>Eten</span></h1>
+  </div>
+  <div class="result-card">
+    <div class="score-ring">
+      <svg width="130" height="130" viewBox="0 0 130 130">
+        <circle class="ring-bg" cx="65" cy="65" r="58"/>
+        <circle class="ring-fill" id="ringFill" cx="65" cy="65" r="58"/>
+      </svg>
+      <div class="score-num" id="scoreNum">0/10</div>
+    </div>
+    <h2 id="resultTitle">Goed gedaan!</h2>
+    <p id="resultMsg"></p>
+    <div class="result-stats">
+      <div class="stat">
+        <div class="stat-val g" id="statCorrect">0</div>
+        <div class="stat-label">✓ GOED</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val r" id="statWrong">0</div>
+        <div class="stat-label">✗ FOUT</div>
+      </div>
+      <div class="stat">
+        <div class="stat-val" id="statPct" style="color:var(--accent2)">0%</div>
+        <div class="stat-label">SCORE</div>
+      </div>
+    </div>
+    <button class="btn-restart" onclick="restartQuiz()">↺ Opnieuw spelen</button>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    q: "Hoeveel suikerklontjes zitten er gemiddeld in een standaard pakje appelsap van 200ml?",
+    opts: ["Ongeveer 2 klontjes","Ongeveer 5 klontjes (21 gram suiker)","Ongeveer 8 klontjes","Er zit geen suiker in, want het is fruit"],
+    correct: 1,
+    explain: "Een pakje appelsap van 200ml bevat gemiddeld zo'n 21 gram suiker — dat zijn ongeveer 5 suikerklontjes!"
+  },
+  {
+    q: "Welk vak in de 'Schijf van Vijf' is het grootst en vormt de basis van een gezonde maaltijd?",
+    opts: ["Zuivel, noten en vis","Groente en fruit","Smeer- en bereidingsvetten","Brood, graanproducten en aardappelen"],
+    correct: 1,
+    explain: "Groente en fruit vormen het grootste vak van de Schijf van Vijf. Probeer elke dag minimaal 250g groente en 2 stuks fruit te eten."
+  },
+  {
+    q: "Wat wordt bedoeld met de term 'zonder toegevoegde suikers' op een etiket?",
+    opts: ["Het product bevat helemaal geen suiker","Er is geen extra suiker door de fabrikant toegevoegd (maar er kan wel natuurlijke suiker in zitten)","Het product is altijd gezonder dan de normale variant","Het product bevat alleen kunstmatige zoetstoffen"],
+    correct: 1,
+    explain: "'Zonder toegevoegde suikers' betekent dat de fabrikant geen extra suiker heeft toegevoegd. Maar van nature aanwezige suikers (zoals in fruit) kunnen nog steeds aanwezig zijn!"
+  },
+  {
+    q: "Waarom is het eten van een hele appel gezonder dan het drinken van een glas appelsap?",
+    opts: ["In een hele appel zitten meer vezels die de suikeropname vertragen","In appelsap zitten giftige stoffen van de schil","Een hele appel bevat minder calorieën dan sap","Er is geen verschil, suiker is suiker"],
+    correct: 0,
+    explain: "Een hele appel bevat veel vezels. Die vezels vertragen de opname van suiker in je bloed, waardoor je geen snelle piek en dip krijgt."
+  },
+  {
+    q: "Welke supermarktstrategie wordt vaak gebruikt om ongezonde producten aan kinderen te verkopen?",
+    opts: ["Producten op de bovenste plank zetten","Kleurrijke verpakkingen op ooghoogte van kinderen plaatsen","Alleen groente en fruit bij de kassa leggen","Producten zonder plaatjes verkopen"],
+    correct: 1,
+    explain: "Supermarkten plaatsen ongezonde producten bewust op ooghoogte van kinderen, met kleurrijke verpakkingen en bekende figuren om de aandacht te trekken."
+  },
+  {
+    q: "Wat is een 'verborgen suiker'?",
+    opts: ["Suiker die met een microscoop moet worden gezocht","Suiker in producten waarvan je niet direct verwacht dat ze zoet zijn (zoals ketchup of pastasaus)","Suiker die alleen in de fabriek zichtbaar is","Suiker die pas ontstaat na het koken"],
+    correct: 1,
+    explain: "Verborgen suikers zitten in producten zoals ketchup, pastasaus, soep of ontbijtgranen — producten die je niet direct als 'zoet' beschouwt."
+  },
+  {
+    q: "Wat is de beste dorstlesser volgens de Schijf van Vijf?",
+    opts: ["Light-frisdrank","Water en thee zonder suiker","Isotone sportdranken","Vruchtensap aangelengd met water"],
+    correct: 1,
+    explain: "Water en thee zonder suiker zijn de beste keuze om dorst te lessen. Ze bevatten geen calorieën, suiker of kunstmatige toevoegingen."
+  },
+  {
+    q: "Welke naam op een etiket wijst NIET op een vorm van suiker?",
+    opts: ["Dextrose","Natrium (dit is zout)","Maltodextrine","Agavesiroop"],
+    correct: 1,
+    explain: "Natrium is zout, geen suiker! Dextrose, maltodextrine en agavesiroop zijn allemaal vormen van suiker die fabrikanten gebruiken op etiketten."
+  },
+  {
+    q: "Wat doet te veel suiker met je concentratie op school?",
+    opts: ["Je krijgt een energie-dip (after-sugar crash) na een korte piek","Je kunt de hele dag beter opletten","Suiker heeft geen invloed op je hersenen","Je wordt er alleen maar rustiger van"],
+    correct: 0,
+    explain: "Na een suikerpiek daalt je bloedsuikerspiegel snel weer. Die 'sugar crash' zorgt voor vermoeidheid, prikkelbaarheid en slechte concentratie."
+  },
+  {
+    q: "Waarom staan gezonde producten zoals groente vaak aan het begin van de supermarktroute?",
+    opts: ["Zodat ze niet geplet worden onder andere boodschappen","Zodat je een 'gezond' gevoel krijgt en later makkelijker ongezonde dingen koopt","Omdat groente het zwaarst is om te tillen","Groente moet altijd dicht bij de ingang staan voor de ventilatie"],
+    correct: 1,
+    explain: "Dit is een slim psychologisch trucje: als je eerst gezonde producten in je mandje legt, voel je je al 'goed bezig' en ben je later sneller geneigd iets ongezonds toe te voegen."
+  }
+];
+
+const letters = ['A','B','C','D'];
+let current = 0, score = 0, answered = false;
+
+function startQuiz() {
+  document.getElementById('start').style.display = 'none';
+  document.getElementById('quiz').style.display = 'flex';
+  document.getElementById('quiz').style.flexDirection = 'column';
+  document.getElementById('quiz').style.alignItems = 'center';
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  const q = questions[current];
+  document.getElementById('qNum').textContent = `Vraag ${current + 1}`;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('qLabel').textContent = `Vraag ${current + 1} van ${questions.length}`;
+  document.getElementById('scoreLabel').textContent = `Score: ${score}`;
+  document.getElementById('progressFill').style.width = `${((current) / questions.length) * 100}%`;
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  document.getElementById('btnNext').className = 'btn-next';
+
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.opts.forEach((opt, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerHTML = `<div class="option-letter">${letters[i]}</div><div class="option-text">${opt}</div>`;
+    div.onclick = () => selectAnswer(i, div);
+    opts.appendChild(div);
+  });
+
+  // Animate card
+  const card = document.querySelector('.quiz-card');
+  card.style.animation = 'none';
+  card.offsetHeight;
+  card.style.animation = 'slideUp 0.4s ease both';
+}
+
+function selectAnswer(idx, el) {
+  if (answered) return;
+  answered = true;
+
+  const q = questions[current];
+  const allOpts = document.querySelectorAll('.option');
+  allOpts.forEach(o => o.classList.add('locked'));
+
+  const fb = document.getElementById('feedback');
+  const isCorrect = idx === q.correct;
+
+  if (isCorrect) {
+    score++;
+    el.classList.add('correct');
+    fb.className = 'feedback correct-fb show';
+    document.getElementById('fbIcon').textContent = '✓';
+    document.getElementById('fbText').textContent = q.explain;
+  } else {
+    el.classList.add('wrong');
+    allOpts[q.correct].classList.add('correct');
+    fb.className = 'feedback wrong-fb show';
+    document.getElementById('fbIcon').textContent = '✗';
+    document.getElementById('fbText').textContent = `Niet helemaal — ${q.explain}`;
+  }
+
+  document.getElementById('scoreLabel').textContent = `Score: ${score}`;
+  document.getElementById('btnNext').className = `btn-next show`;
+  document.getElementById('btnNext').textContent = current < questions.length - 1 ? 'Volgende vraag →' : 'Bekijk resultaat →';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) {
+    loadQuestion();
+  } else {
+    showResult();
+  }
+}
+
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  const res = document.getElementById('result');
+  res.style.display = 'flex';
+  res.style.flexDirection = 'column';
+  res.style.alignItems = 'center';
+
+  const pct = Math.round((score / questions.length) * 100);
+  document.getElementById('scoreNum').textContent = `${score}/10`;
+  document.getElementById('statCorrect').textContent = score;
+  document.getElementById('statWrong').textContent = questions.length - score;
+  document.getElementById('statPct').textContent = `${pct}%`;
+
+  // Ring animation
+  const circumference = 2 * Math.PI * 58;
+  const offset = circumference - (pct / 100) * circumference;
+  setTimeout(() => {
+    document.getElementById('ringFill').style.strokeDashoffset = offset;
+  }, 100);
+
+  // Title & message
+  let title, msg;
+  if (pct === 100) {
+    title = "Perfect! 🌟"; msg = "Geweldig — je scoort 10 uit 10! Jij bent een echte voedingsexpert. Zo'n kennis verdient een gezonde beloning!";
+  } else if (pct >= 80) {
+    title = "Uitstekend! 🏆"; msg = "Indrukwekkend resultaat! Je weet heel goed wat gezond eten inhoudt. Een paar kleine verbeterpuntjes en je bent een absolute expert.";
+  } else if (pct >= 60) {
+    title = "Goed bezig! 👍"; msg = "Dat is een solide score! Je hebt een goede basiskennis over voeding. Met wat extra aandacht voor etiketten en verborgen suikers word je nóg beter.";
+  } else if (pct >= 40) {
+    title = "Bijna! 🌱"; msg = "Je bent op de goede weg! Er valt nog het nodige te leren over suikers, supermarkttactieken en etiketten lezen. Probeer het nog eens!";
+  } else {
+    title = "Blijf leren! 📚"; msg = "Geen zorgen — voeding is een complex onderwerp. Speel de quiz opnieuw en let op de uitleg bij elke vraag. Je wordt er zeker beter in!";
+  }
+
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultMsg').textContent = msg;
+}
+
+function restartQuiz() {
+  current = 0; score = 0;
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('ringFill').style.strokeDashoffset = '364.4';
+  document.getElementById('quiz').style.display = 'flex';
+  document.getElementById('quiz').style.flexDirection = 'column';
+  document.getElementById('quiz').style.alignItems = 'center';
+  loadQuestion();
+}
+</script>
+</body>
+</html>
