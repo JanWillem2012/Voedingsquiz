@@ -4,449 +4,313 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Voedingsquiz — Slim Eten</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --card: #1c2330;
-    --accent: #4ade80;
-    --accent2: #facc15;
-    --wrong: #f87171;
-    --text: #f0f6fc;
-    --muted: #8b949e;
-    --border: #30363d;
-    --radius: 16px;
+    --bg: #0d1117; --surface: #161b22; --card: #1c2330;
+    --accent: #4ade80; --accent2: #facc15; --wrong: #f87171;
+    --text: #f0f6fc; --muted: #8b949e; --border: #30363d; --radius: 16px;
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 24px 16px;
+    background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 24px 16px;
     background-image:
       radial-gradient(ellipse 80% 50% at 50% -20%, rgba(74,222,128,0.12), transparent),
       radial-gradient(ellipse 60% 40% at 80% 100%, rgba(250,204,21,0.07), transparent);
   }
 
-  /* ── Header ── */
-  .header {
-    text-align: center;
-    margin-bottom: 40px;
-    animation: fadeDown 0.7s ease both;
-  }
+  .header { text-align: center; margin-bottom: 28px; animation: fadeDown 0.7s ease both; }
   .header .badge {
-    display: inline-block;
-    background: rgba(74,222,128,0.15);
-    border: 1px solid rgba(74,222,128,0.35);
-    color: var(--accent);
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 4px 14px;
-    border-radius: 99px;
-    margin-bottom: 16px;
+    display: inline-block; background: rgba(74,222,128,0.15);
+    border: 1px solid rgba(74,222,128,0.35); color: var(--accent);
+    font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
+    padding: 4px 14px; border-radius: 99px; margin-bottom: 14px;
   }
-  .header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2.2rem, 5vw, 3.5rem);
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -1px;
-  }
+  .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,5vw,3.2rem); font-weight: 900; line-height: 1.1; letter-spacing: -1px; }
   .header h1 span { color: var(--accent); }
-  .header p {
-    color: var(--muted);
-    margin-top: 10px;
-    font-size: 15px;
-    font-weight: 300;
-  }
+  .header p { color: var(--muted); margin-top: 8px; font-size: 15px; font-weight: 300; }
 
-  /* ── Progress ── */
-  .progress-wrap {
-    width: 100%;
-    max-width: 660px;
-    margin-bottom: 20px;
-    animation: fadeDown 0.7s 0.1s ease both;
-  }
-  .progress-meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: var(--muted);
-    margin-bottom: 8px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
-  }
-  .progress-bar-bg {
-    height: 5px;
-    background: var(--border);
-    border-radius: 99px;
-    overflow: hidden;
-  }
-  .progress-bar-fill {
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 99px;
-    transition: width 0.5s cubic-bezier(0.4,0,0.2,1);
-  }
+  .screen { width: 100%; display: flex; flex-direction: column; align-items: center; }
 
-  /* ── Card ── */
+  /* Start */
+  .start-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+    padding: 40px; max-width: 520px; width: 100%;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4); animation: slideUp 0.5s ease both;
+  }
+  .start-icon { font-size: 48px; margin-bottom: 16px; text-align: center; }
+  .start-card h2 { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 900; margin-bottom: 10px; text-align: center; }
+  .start-card .sub { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin-bottom: 22px; text-align: center; }
+  .start-meta { display: flex; justify-content: center; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
+  .meta-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 12px; color: var(--muted); }
+
+  .input-wrap { margin-bottom: 18px; }
+  .input-wrap label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
+  .input-wrap input {
+    width: 100%; padding: 14px 18px; background: var(--surface);
+    border: 1.5px solid var(--border); border-radius: var(--radius);
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s;
+  }
+  .input-wrap input:focus { border-color: var(--accent); }
+  .input-wrap input::placeholder { color: var(--muted); }
+  .input-error { font-size: 12px; color: var(--wrong); margin-top: 6px; display: none; }
+
+  .btn-primary {
+    width: 100%; padding: 16px; background: var(--accent); color: #0d1117;
+    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
+    border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease;
+  }
+  .btn-primary:hover { background: #86efac; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(74,222,128,0.2); }
+
+  /* Config notice */
+  .config-notice {
+    background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.3);
+    border-radius: 12px; padding: 12px 16px; margin-bottom: 18px;
+    font-size: 12.5px; color: #fde68a; line-height: 1.55; display: none;
+  }
+  .config-notice code { background: rgba(255,255,255,0.1); padding: 1px 5px; border-radius: 4px; }
+
+  /* Progress */
+  .progress-wrap { width: 100%; max-width: 660px; margin-bottom: 18px; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
+  .progress-bar-bg { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
+
+  /* Quiz card */
   .quiz-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 40px;
-    max-width: 660px;
-    width: 100%;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
-    animation: slideUp 0.5s ease both;
+    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+    padding: 40px; max-width: 660px; width: 100%;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.4); animation: slideUp 0.5s ease both;
   }
-
-  .question-number {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 14px;
-  }
-
-  .question-text {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(1.1rem, 2.5vw, 1.45rem);
-    font-weight: 700;
-    line-height: 1.45;
-    margin-bottom: 28px;
-    color: var(--text);
-  }
-
-  /* ── Options ── */
+  .question-number { font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
+  .question-text { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem,2.5vw,1.4rem); font-weight: 700; line-height: 1.45; margin-bottom: 28px; }
   .options { display: flex; flex-direction: column; gap: 12px; }
-
   .option {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 16px 20px;
-    background: var(--surface);
-    border: 1.5px solid var(--border);
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: all 0.2s ease;
-    user-select: none;
-    position: relative;
-    overflow: hidden;
+    display: flex; align-items: center; gap: 14px; padding: 16px 20px;
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius);
+    cursor: pointer; transition: all 0.2s ease; user-select: none; position: relative; overflow: hidden;
   }
-  .option::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--accent);
-    opacity: 0;
-    transition: opacity 0.2s;
-  }
+  .option::before { content:''; position:absolute; inset:0; background:var(--accent); opacity:0; transition:opacity 0.2s; }
   .option:hover:not(.locked)::before { opacity: 0.04; }
   .option:hover:not(.locked) { border-color: rgba(74,222,128,0.45); transform: translateY(-1px); }
-
   .option-letter {
-    width: 34px;
-    height: 34px;
-    min-width: 34px;
-    border-radius: 10px;
-    background: var(--card);
-    border: 1.5px solid var(--border);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: 600;
-    font-size: 13px;
-    color: var(--muted);
-    transition: all 0.2s;
-    position: relative;
-    z-index: 1;
+    width: 34px; height: 34px; min-width: 34px; border-radius: 10px;
+    background: var(--card); border: 1.5px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 600; font-size: 13px; color: var(--muted); transition: all 0.2s; position: relative; z-index: 1;
   }
-  .option-text {
-    font-size: 14.5px;
-    line-height: 1.5;
-    color: var(--text);
-    font-weight: 400;
-    position: relative;
-    z-index: 1;
-  }
-
-  /* States */
-  .option.correct {
-    border-color: var(--accent);
-    background: rgba(74,222,128,0.08);
-  }
-  .option.correct .option-letter {
-    background: var(--accent);
-    border-color: var(--accent);
-    color: #0d1117;
-    font-weight: 700;
-  }
-  .option.wrong {
-    border-color: var(--wrong);
-    background: rgba(248,113,113,0.07);
-  }
-  .option.wrong .option-letter {
-    background: var(--wrong);
-    border-color: var(--wrong);
-    color: #fff;
-    font-weight: 700;
-  }
+  .option-text { font-size: 14.5px; line-height: 1.5; position: relative; z-index: 1; }
+  .option.correct { border-color: var(--accent); background: rgba(74,222,128,0.08); }
+  .option.correct .option-letter { background: var(--accent); border-color: var(--accent); color: #0d1117; font-weight: 700; }
+  .option.wrong { border-color: var(--wrong); background: rgba(248,113,113,0.07); }
+  .option.wrong .option-letter { background: var(--wrong); border-color: var(--wrong); color: #fff; font-weight: 700; }
   .option.locked { cursor: default; }
   .option.locked:hover { transform: none; }
 
-  /* ── Feedback ── */
-  .feedback {
-    margin-top: 20px;
-    padding: 16px 20px;
-    border-radius: var(--radius);
-    font-size: 14px;
-    line-height: 1.55;
-    display: none;
-    animation: fadeIn 0.3s ease;
-  }
+  .feedback { margin-top: 20px; padding: 16px 20px; border-radius: var(--radius); font-size: 14px; line-height: 1.55; display: none; animation: fadeIn 0.3s ease; }
   .feedback.show { display: flex; align-items: flex-start; gap: 10px; }
-  .feedback.correct-fb {
-    background: rgba(74,222,128,0.1);
-    border: 1px solid rgba(74,222,128,0.3);
-    color: #86efac;
-  }
-  .feedback.wrong-fb {
-    background: rgba(248,113,113,0.09);
-    border: 1px solid rgba(248,113,113,0.3);
-    color: #fca5a5;
-  }
+  .feedback.correct-fb { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); color: #86efac; }
+  .feedback.wrong-fb { background: rgba(248,113,113,0.09); border: 1px solid rgba(248,113,113,0.3); color: #fca5a5; }
   .feedback-icon { font-size: 18px; line-height: 1; }
-
-  /* ── Next Button ── */
-  .btn-next {
-    display: none;
-    margin-top: 24px;
-    width: 100%;
-    padding: 16px;
-    background: var(--accent);
-    color: #0d1117;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    letter-spacing: 0.3px;
-    transition: all 0.2s ease;
-  }
+  .btn-next { display: none; margin-top: 24px; width: 100%; padding: 16px; background: var(--accent); color: #0d1117; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
   .btn-next:hover { background: #86efac; transform: translateY(-1px); }
   .btn-next.show { display: block; animation: fadeIn 0.4s ease; }
 
-  /* ── Result Screen ── */
-  #result {
-    display: none;
-    text-align: center;
-    max-width: 580px;
-    width: 100%;
-    animation: slideUp 0.5s ease;
-  }
+  /* Result */
+  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 920px; width: 100%; }
+  @media (max-width: 720px) { .result-grid { grid-template-columns: 1fr; } }
+
   .result-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 48px 40px;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+    padding: 36px; box-shadow: 0 24px 64px rgba(0,0,0,0.4); text-align: center;
   }
-  .score-ring {
-    width: 130px;
-    height: 130px;
-    margin: 0 auto 28px;
-    position: relative;
-  }
+  .score-ring { width: 120px; height: 120px; margin: 0 auto 22px; position: relative; }
   .score-ring svg { transform: rotate(-90deg); }
-  .score-ring circle {
-    fill: none;
-    stroke-width: 8;
-    cx: 65;
-    cy: 65;
-    r: 58;
-  }
-  .ring-bg { stroke: var(--border); }
-  .ring-fill {
-    stroke: var(--accent);
-    stroke-linecap: round;
-    stroke-dasharray: 364.4;
-    stroke-dashoffset: 364.4;
-    transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1) 0.3s;
-  }
-  .score-num {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-family: 'Playfair Display', serif;
-    font-size: 2rem;
-    font-weight: 900;
-    color: var(--text);
-  }
-  .result-card h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.9rem;
-    font-weight: 900;
-    margin-bottom: 12px;
-  }
-  .result-card p {
-    color: var(--muted);
-    font-size: 15px;
-    line-height: 1.6;
-    max-width: 400px;
-    margin: 0 auto 28px;
-  }
-  .result-stats {
-    display: flex;
-    justify-content: center;
-    gap: 24px;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-  }
-  .stat {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px 22px;
-    min-width: 100px;
-  }
-  .stat-val {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.6rem;
-    font-weight: 700;
-  }
+  .ring-bg { fill: none; stroke: var(--border); stroke-width: 8; }
+  .ring-fill { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 364.4; stroke-dashoffset: 364.4; transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1) 0.3s; }
+  .score-num { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; }
+  .result-card h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; margin-bottom: 10px; }
+  .result-card .res-msg { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+  .result-stats { display: flex; justify-content: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 18px; min-width: 75px; }
+  .stat-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; }
   .stat-val.g { color: var(--accent); }
   .stat-val.r { color: var(--wrong); }
-  .stat-label { font-size: 11px; color: var(--muted); margin-top: 2px; letter-spacing: 0.5px; }
-  .btn-restart {
-    padding: 16px 36px;
-    background: var(--accent);
-    color: #0d1117;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 600;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .btn-restart:hover { background: #86efac; transform: translateY(-1px); }
+  .stat-label { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: 0.5px; }
 
-  /* ── Start Screen ── */
-  #start {
-    text-align: center;
-    max-width: 560px;
-    width: 100%;
-    animation: slideUp 0.5s ease;
+  /* Leaderboard */
+  .lb-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 36px; box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
+  .lb-card h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 900; margin-bottom: 4px; }
+  .lb-sub { color: var(--muted); font-size: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 6px; }
+  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+  .lb-list { display: flex; flex-direction: column; gap: 9px; }
+  .lb-row {
+    display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border); transition: border-color 0.3s, background 0.3s;
+    animation: slideUp 0.4s ease both;
   }
-  .start-card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: 24px;
-    padding: 48px 40px;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
-  }
-  .start-icon { font-size: 52px; margin-bottom: 20px; }
-  .start-card h2 {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
-    font-weight: 900;
-    margin-bottom: 12px;
-  }
-  .start-card p {
-    color: var(--muted);
-    font-size: 15px;
-    line-height: 1.6;
-    margin-bottom: 28px;
-  }
-  .start-meta {
-    display: flex;
-    justify-content: center;
-    gap: 16px;
-    margin-bottom: 28px;
-    flex-wrap: wrap;
-  }
-  .meta-chip {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 99px;
-    padding: 6px 16px;
-    font-size: 12px;
-    color: var(--muted);
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-  .btn-start {
-    padding: 17px 44px;
-    background: var(--accent);
-    color: #0d1117;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: all 0.2s;
-    letter-spacing: 0.2px;
-  }
-  .btn-start:hover { background: #86efac; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(74,222,128,0.25); }
+  .lb-row.me { border-color: var(--accent); background: rgba(74,222,128,0.06); }
+  .lb-rank { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; background: var(--card); color: var(--muted); }
+  .lb-rank.gold { background: rgba(250,204,21,0.15); color: var(--accent2); }
+  .lb-rank.silver { background: rgba(148,163,184,0.15); color: #94a3b8; }
+  .lb-rank.bronze { background: rgba(180,120,60,0.15); color: #cd7f32; }
+  .lb-name { flex: 1; font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lb-you { font-size: 10px; color: var(--accent); font-weight: 600; margin-left: 4px; }
+  .lb-bar-wrap { width: 80px; flex-shrink: 0; }
+  .lb-bar-bg { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .lb-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.8s ease; }
+  .lb-val { font-size: 13px; font-weight: 700; color: var(--accent); min-width: 34px; text-align: right; flex-shrink: 0; }
+  .lb-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 28px 0; }
+  .lb-loading { display: flex; justify-content: center; gap: 6px; padding: 28px 0; }
+  .lb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: bounce 1s infinite; }
+  .lb-dot:nth-child(2) { animation-delay: 0.2s; }
+  .lb-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} }
 
-  /* ── Animations ── */
-  @keyframes fadeDown {
-    from { opacity: 0; transform: translateY(-16px); }
-    to   { opacity: 1; transform: translateY(0); }
+  /* ── Privacy modal ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
+    z-index: 1000; align-items: center; justify-content: center; padding: 20px;
+    animation: fadeIn 0.2s ease;
   }
-  @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to   { opacity: 1; transform: translateY(0); }
+  .modal-overlay.open { display: flex; }
+  .modal-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+    padding: 40px; max-width: 580px; width: 100%; max-height: 80vh;
+    overflow-y: auto; box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    animation: slideUp 0.3s ease;
   }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to   { opacity: 1; }
+  .modal-box h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
+  .modal-box .modal-date { font-size: 11px; color: var(--muted); margin-bottom: 24px; letter-spacing: 0.5px; }
+  .modal-box h3 { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin: 20px 0 8px; }
+  .modal-box p { font-size: 13.5px; color: var(--muted); line-height: 1.7; margin-bottom: 8px; }
+  .modal-box ul { padding-left: 18px; margin-bottom: 8px; }
+  .modal-box ul li { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+  .modal-close {
+    margin-top: 28px; width: 100%; padding: 14px; background: var(--accent); color: #0d1117;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s;
   }
+  .modal-close:hover { background: #86efac; }
 
-  #quiz { display: none; width: 100%; max-width: 660px; }
+  /* ── Consent checkbox ── */
+  .consent-wrap {
+    display: flex; align-items: flex-start; gap: 10px;
+    margin-bottom: 18px; padding: 14px 16px;
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius);
+    cursor: pointer; transition: border-color 0.2s;
+  }
+  .consent-wrap:hover { border-color: rgba(74,222,128,0.4); }
+  .consent-wrap input[type=checkbox] { margin-top: 2px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
+  .consent-wrap label { font-size: 13px; color: var(--muted); line-height: 1.55; cursor: pointer; }
+  .consent-wrap label a { color: var(--accent); text-decoration: underline; }
+  .consent-error { font-size: 12px; color: var(--wrong); margin-top: -12px; margin-bottom: 14px; display: none; }
+
+  /* ── Footer ── */
+  .site-footer {
+    margin-top: 32px; text-align: center; font-size: 12px; color: var(--muted);
+    padding-bottom: 16px;
+  }
+  .site-footer a { color: var(--accent); text-decoration: none; }
+  .site-footer a:hover { text-decoration: underline; }
+
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
+  @keyframes slideUp  { from{opacity:0;transform:translateY(20px)}  to{opacity:1;transform:translateY(0)} }
+  @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
 </style>
 </head>
 <body>
 
-<!-- ── START ── -->
-<div id="start">
+<!-- ═══════ PRIVACY MODAL ═══════ -->
+<div class="modal-overlay" id="privacyModal">
+  <div class="modal-box">
+    <h2>🔒 Privacybeleid</h2>
+    <div class="modal-date">Laatst bijgewerkt: juni 2025</div>
+
+    <h3>Wie zijn wij?</h3>
+    <p>Deze quiz ("Slim Eten — Voedingsquiz") is een educatieve webapplicatie over voeding en gezond eten. De quiz wordt aangeboden zonder commercieel doel.</p>
+
+    <h3>Welke gegevens verzamelen wij?</h3>
+    <p>Wij verzamelen uitsluitend de volgende gegevens wanneer je de quiz invult:</p>
+    <ul>
+      <li>Jouw gekozen <strong>nickname</strong> (een zelfgekozen schuilnaam, geen echte naam vereist)</li>
+      <li>Jouw <strong>quizscore</strong> (aantal goed beantwoorde vragen)</li>
+      <li>Een <strong>tijdstempel</strong> (datum en tijd van deelname)</li>
+    </ul>
+    <p>Wij verzamelen <strong>geen</strong> persoonlijk identificeerbare informatie zoals echte namen, e-mailadressen, IP-adressen of locatiegegevens.</p>
+
+    <h3>Waarom verzamelen wij deze gegevens?</h3>
+    <p>De gegevens worden uitsluitend gebruikt om een <strong>live ranglijst (leaderboard)</strong> te tonen aan deelnemers van de quiz. Dit is het enige doel.</p>
+
+    <h3>Grondslag (AVG/GDPR)</h3>
+    <p>De verwerking is gebaseerd op jouw expliciete <strong>toestemming</strong> (Art. 6 lid 1 sub a AVG), die je geeft door het vakje op het startscherm aan te vinken.</p>
+
+    <h3>Waar worden de gegevens opgeslagen?</h3>
+    <p>Gegevens worden opgeslagen in <strong>Firebase Realtime Database</strong> (Google LLC), gesitueerd in de EU (europe-west1 — België). Google is gecertificeerd onder het EU-US Data Privacy Framework.</p>
+
+    <h3>Hoe lang bewaren wij de gegevens?</h3>
+    <p>Scores worden bewaard zolang de quiz actief is. Je kunt te allen tijde verzoeken om verwijdering van jouw nickname en score (zie hieronder).</p>
+
+    <h3>Jouw rechten</h3>
+    <p>Op basis van de AVG heb je het recht op inzage, correctie en verwijdering van jouw gegevens. Omdat alleen een nickname wordt opgeslagen zonder contactinformatie, kun je een verwijderverzoek indienen door jouw nickname door te geven aan de beheerder van deze quiz.</p>
+
+    <h3>Cookies en tracking</h3>
+    <p>Deze quiz gebruikt <strong>geen cookies</strong> en maakt <strong>geen gebruik van tracking of advertenties</strong>.</p>
+
+    <h3>Kinderen en jongeren</h3>
+    <p>Deze quiz is speciaal ontworpen voor leerlingen vanaf 14 jaar als onderdeel van een educatieve activiteit over voeding en gezond eten. De quiz wordt ingezet onder begeleiding van een docent, school of andere onderwijsinstelling.</p>
+    <p>Er worden <strong>geen persoonsgegevens</strong> verzameld. Deelnemers kiezen zelf een nickname — dit hoeft geen echte naam te zijn. Er is geen mogelijkheid om een deelnemer te identificeren op basis van de opgeslagen gegevens.</p>
+    <p>Omdat er geen identificeerbare persoonsgegevens van minderjarigen worden verwerkt, is afzonderlijke ouderlijke toestemming voor deelname aan deze quiz niet vereist conform de AVG.</p>
+
+    <h3>Wijzigingen</h3>
+    <p>Dit privacybeleid kan worden bijgewerkt. De meest recente versie is altijd beschikbaar via de link onderaan de pagina.</p>
+
+    <button class="modal-close" onclick="closePrivacy()">Sluiten ✕</button>
+  </div>
+</div>
+
+<!-- ═══════ START ═══════ -->
+<div id="screen-start" class="screen">
   <div class="header">
     <div class="badge">🥦 Voedingsquiz</div>
     <h1>Slim <span>Eten</span></h1>
-    <p>Test jouw kennis over suiker, etiketten & gezonde keuzes</p>
+    <p>Test jouw kennis over suiker, etiketten &amp; gezonde keuzes</p>
   </div>
   <div class="start-card">
     <div class="start-icon">🧠</div>
     <h2>Ben jij een voedingsexpert?</h2>
-    <p>10 vragen over suikers, supermarkttrucjes, etiketten lezen en gezond eten. Hoe goed ken jij jouw eten?</p>
+    <p class="sub">10 vragen over suikers, supermarkttrucjes en etiketten. Doe mee en zie hoe jij scoort in de live top&nbsp;10!</p>
     <div class="start-meta">
       <div class="meta-chip">📋 10 vragen</div>
       <div class="meta-chip">⚡ Meerkeuze</div>
-      <div class="meta-chip">🏆 Direct resultaat</div>
+      <div class="meta-chip">🏆 Live leaderboard</div>
     </div>
-    <button class="btn-start" onclick="startQuiz()">Start de quiz →</button>
+    <div class="config-notice" id="configNotice">
+      ⚠️ <strong>Firebase nog niet gekoppeld.</strong> Scores worden nu lokaal bijgehouden als demo.
+    </div>
+    <div class="input-wrap">
+      <label>Jouw nickname</label>
+      <input type="text" id="usernameInput" placeholder="Kies een nickname..." maxlength="20" autocomplete="off" />
+      <div class="input-error" id="usernameError">Kies een nickname om te starten (minimaal 2 tekens)</div>
+    </div>
+    <div class="consent-wrap" onclick="toggleConsent()">
+      <input type="checkbox" id="consentCheck" onclick="event.stopPropagation();checkConsent()" />
+      <label for="consentCheck">Ik ga akkoord dat mijn nickname en score worden opgeslagen in een publiek leaderboard. Geen persoonsgegevens vereist. Lees ons <a href="#" onclick="event.preventDefault();event.stopPropagation();openPrivacy()">privacybeleid</a>.</label>
+    </div>
+    <div class="consent-error" id="consentError">Vink het vakje aan om door te gaan</div>
+    <button class="btn-primary" onclick="handleStart()">Start de quiz →</button>
+  </div>
+  <div class="site-footer">
+    <a href="#" onclick="event.preventDefault();openPrivacy()">🔒 Privacybeleid</a> &nbsp;·&nbsp; Slim Eten Quiz &nbsp;·&nbsp; Gegevens opgeslagen in EU (Firebase)
   </div>
 </div>
 
-<!-- ── QUIZ ── -->
-<div id="quiz">
-  <div class="header" style="margin-bottom:20px;">
+<!-- ═══════ QUIZ ═══════ -->
+<div id="screen-quiz" class="screen" style="display:none">
+  <div class="header" style="margin-bottom:14px">
     <div class="badge">🥦 Voedingsquiz</div>
     <h1>Slim <span>Eten</span></h1>
   </div>
@@ -456,7 +320,7 @@
       <span id="scoreLabel">Score: 0</span>
     </div>
     <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="progressFill" style="width:10%"></div>
+      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
     </div>
   </div>
   <div class="quiz-card">
@@ -471,244 +335,279 @@
   </div>
 </div>
 
-<!-- ── RESULT ── -->
-<div id="result">
-  <div class="header" style="margin-bottom:20px;">
+<!-- ═══════ RESULT ═══════ -->
+<div id="screen-result" class="screen" style="display:none">
+  <div class="header" style="margin-bottom:14px">
     <div class="badge">🥦 Voedingsquiz</div>
     <h1>Slim <span>Eten</span></h1>
   </div>
-  <div class="result-card">
-    <div class="score-ring">
-      <svg width="130" height="130" viewBox="0 0 130 130">
-        <circle class="ring-bg" cx="65" cy="65" r="58"/>
-        <circle class="ring-fill" id="ringFill" cx="65" cy="65" r="58"/>
-      </svg>
-      <div class="score-num" id="scoreNum">0/10</div>
+  <div class="result-grid">
+    <div class="result-card">
+      <div class="score-ring">
+        <svg width="120" height="120" viewBox="0 0 130 130">
+          <circle class="ring-bg" cx="65" cy="65" r="58"/>
+          <circle class="ring-fill" id="ringFill" cx="65" cy="65" r="58"/>
+        </svg>
+        <div class="score-num" id="scoreNum">0/10</div>
+      </div>
+      <h2 id="resultTitle"></h2>
+      <p class="res-msg" id="resultMsg"></p>
+      <div class="result-stats">
+        <div class="stat"><div class="stat-val g" id="statCorrect">0</div><div class="stat-label">✓ GOED</div></div>
+        <div class="stat"><div class="stat-val r" id="statWrong">0</div><div class="stat-label">✗ FOUT</div></div>
+        <div class="stat"><div class="stat-val" id="statPct" style="color:var(--accent2)">0%</div><div class="stat-label">SCORE</div></div>
+      </div>
+      <button class="btn-primary" style="width:auto;padding:14px 28px" onclick="restartQuiz()">↺ Opnieuw spelen</button>
     </div>
-    <h2 id="resultTitle">Goed gedaan!</h2>
-    <p id="resultMsg"></p>
-    <div class="result-stats">
-      <div class="stat">
-        <div class="stat-val g" id="statCorrect">0</div>
-        <div class="stat-label">✓ GOED</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val r" id="statWrong">0</div>
-        <div class="stat-label">✗ FOUT</div>
-      </div>
-      <div class="stat">
-        <div class="stat-val" id="statPct" style="color:var(--accent2)">0%</div>
-        <div class="stat-label">SCORE</div>
+    <div class="lb-card">
+      <h3>🏆 Top 10</h3>
+      <div class="lb-sub"><span class="live-dot"></span> Realtime ranglijst</div>
+      <div class="lb-list" id="lbList">
+        <div class="lb-loading"><div class="lb-dot"></div><div class="lb-dot"></div><div class="lb-dot"></div></div>
       </div>
     </div>
-    <button class="btn-restart" onclick="restartQuiz()">↺ Opnieuw spelen</button>
   </div>
 </div>
+<div class="site-footer" id="result-footer" style="display:none">
+  <a href="#" onclick="event.preventDefault();openPrivacy()">🔒 Privacybeleid</a> &nbsp;·&nbsp; Slim Eten Quiz
+</div>
+<script type="module">
+// ════════════════════════════════════════════
+// 🔧 STAP 1: Maak een project op https://console.firebase.google.com
+// STAP 2: Activeer "Realtime Database" en zet rules op:
+//   { "rules": { ".read": true, ".write": true } }   (voor testen)
+// STAP 3: Vervang onderstaande waarden met jouw eigen Firebase config
+// ════════════════════════════════════════════
+const FIREBASE_CONFIG = {
+  apiKey:            "AIzaSyAEe_DHNTkaiv5XC2auAuPvSxFBIQlw9_I",
+  authDomain:        "voedingsquiz.firebaseapp.com",
+  databaseURL:       "https://voedingsquiz-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:         "voedingsquiz",
+  storageBucket:     "voedingsquiz.firebasestorage.app",
+  messagingSenderId: "469175449514",
+  appId:             "1:469175449514:web:620f6b6a7cb28c13041dd3",
+  measurementId:     "G-D5745RHCWY"
+};
+
+import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, push, onValue, query, orderByChild, limitToLast }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+
+let db = null;
+window._firebaseOK = false;
+
+if (FIREBASE_CONFIG.apiKey !== "JOUW_API_KEY") {
+  try {
+    const app = initializeApp(FIREBASE_CONFIG);
+    db = getDatabase(app);
+    window._firebaseOK = true;
+    console.log("✅ Firebase verbonden");
+  } catch(e) { console.warn("Firebase init mislukt:", e); }
+} else {
+  document.getElementById('configNotice').style.display = 'block';
+}
+
+window._fbSave = async (name, score) => {
+  if (!window._firebaseOK || !db) return false;
+  try {
+    await push(ref(db, 'quiz_scores'), { name, score, total: 10, ts: Date.now() });
+    return true;
+  } catch(e) { console.warn("Opslaan mislukt:", e); return false; }
+};
+
+window._fbListen = (cb) => {
+  if (!window._firebaseOK || !db) { cb(window._localScores || []); return; }
+  const q = query(ref(db, 'quiz_scores'), orderByChild('score'), limitToLast(100));
+  onValue(q, snap => {
+    const val = snap.val();
+    if (!val) { cb([]); return; }
+    // Hoogste score per naam
+    const best = {};
+    Object.values(val).forEach(e => {
+      if (!best[e.name] || e.score > best[e.name].score) best[e.name] = e;
+    });
+    cb(Object.values(best).sort((a,b) => b.score - a.score).slice(0, 10));
+  });
+};
+</script>
 
 <script>
 const questions = [
-  {
-    q: "Hoeveel suikerklontjes zitten er gemiddeld in een standaard pakje appelsap van 200ml?",
-    opts: ["Ongeveer 2 klontjes","Ongeveer 5 klontjes (21 gram suiker)","Ongeveer 8 klontjes","Er zit geen suiker in, want het is fruit"],
-    correct: 1,
-    explain: "Een pakje appelsap van 200ml bevat gemiddeld zo'n 21 gram suiker — dat zijn ongeveer 5 suikerklontjes!"
-  },
-  {
-    q: "Welk vak in de 'Schijf van Vijf' is het grootst en vormt de basis van een gezonde maaltijd?",
-    opts: ["Zuivel, noten en vis","Groente en fruit","Smeer- en bereidingsvetten","Brood, graanproducten en aardappelen"],
-    correct: 1,
-    explain: "Groente en fruit vormen het grootste vak van de Schijf van Vijf. Probeer elke dag minimaal 250g groente en 2 stuks fruit te eten."
-  },
-  {
-    q: "Wat wordt bedoeld met de term 'zonder toegevoegde suikers' op een etiket?",
-    opts: ["Het product bevat helemaal geen suiker","Er is geen extra suiker door de fabrikant toegevoegd (maar er kan wel natuurlijke suiker in zitten)","Het product is altijd gezonder dan de normale variant","Het product bevat alleen kunstmatige zoetstoffen"],
-    correct: 1,
-    explain: "'Zonder toegevoegde suikers' betekent dat de fabrikant geen extra suiker heeft toegevoegd. Maar van nature aanwezige suikers (zoals in fruit) kunnen nog steeds aanwezig zijn!"
-  },
-  {
-    q: "Waarom is het eten van een hele appel gezonder dan het drinken van een glas appelsap?",
-    opts: ["In een hele appel zitten meer vezels die de suikeropname vertragen","In appelsap zitten giftige stoffen van de schil","Een hele appel bevat minder calorieën dan sap","Er is geen verschil, suiker is suiker"],
-    correct: 0,
-    explain: "Een hele appel bevat veel vezels. Die vezels vertragen de opname van suiker in je bloed, waardoor je geen snelle piek en dip krijgt."
-  },
-  {
-    q: "Welke supermarktstrategie wordt vaak gebruikt om ongezonde producten aan kinderen te verkopen?",
-    opts: ["Producten op de bovenste plank zetten","Kleurrijke verpakkingen op ooghoogte van kinderen plaatsen","Alleen groente en fruit bij de kassa leggen","Producten zonder plaatjes verkopen"],
-    correct: 1,
-    explain: "Supermarkten plaatsen ongezonde producten bewust op ooghoogte van kinderen, met kleurrijke verpakkingen en bekende figuren om de aandacht te trekken."
-  },
-  {
-    q: "Wat is een 'verborgen suiker'?",
-    opts: ["Suiker die met een microscoop moet worden gezocht","Suiker in producten waarvan je niet direct verwacht dat ze zoet zijn (zoals ketchup of pastasaus)","Suiker die alleen in de fabriek zichtbaar is","Suiker die pas ontstaat na het koken"],
-    correct: 1,
-    explain: "Verborgen suikers zitten in producten zoals ketchup, pastasaus, soep of ontbijtgranen — producten die je niet direct als 'zoet' beschouwt."
-  },
-  {
-    q: "Wat is de beste dorstlesser volgens de Schijf van Vijf?",
-    opts: ["Light-frisdrank","Water en thee zonder suiker","Isotone sportdranken","Vruchtensap aangelengd met water"],
-    correct: 1,
-    explain: "Water en thee zonder suiker zijn de beste keuze om dorst te lessen. Ze bevatten geen calorieën, suiker of kunstmatige toevoegingen."
-  },
-  {
-    q: "Welke naam op een etiket wijst NIET op een vorm van suiker?",
-    opts: ["Dextrose","Natrium (dit is zout)","Maltodextrine","Agavesiroop"],
-    correct: 1,
-    explain: "Natrium is zout, geen suiker! Dextrose, maltodextrine en agavesiroop zijn allemaal vormen van suiker die fabrikanten gebruiken op etiketten."
-  },
-  {
-    q: "Wat doet te veel suiker met je concentratie op school?",
-    opts: ["Je krijgt een energie-dip (after-sugar crash) na een korte piek","Je kunt de hele dag beter opletten","Suiker heeft geen invloed op je hersenen","Je wordt er alleen maar rustiger van"],
-    correct: 0,
-    explain: "Na een suikerpiek daalt je bloedsuikerspiegel snel weer. Die 'sugar crash' zorgt voor vermoeidheid, prikkelbaarheid en slechte concentratie."
-  },
-  {
-    q: "Waarom staan gezonde producten zoals groente vaak aan het begin van de supermarktroute?",
-    opts: ["Zodat ze niet geplet worden onder andere boodschappen","Zodat je een 'gezond' gevoel krijgt en later makkelijker ongezonde dingen koopt","Omdat groente het zwaarst is om te tillen","Groente moet altijd dicht bij de ingang staan voor de ventilatie"],
-    correct: 1,
-    explain: "Dit is een slim psychologisch trucje: als je eerst gezonde producten in je mandje legt, voel je je al 'goed bezig' en ben je later sneller geneigd iets ongezonds toe te voegen."
-  }
+  { q:"Hoeveel suikerklontjes zitten er gemiddeld in een standaard pakje appelsap van 200ml?", opts:["Ongeveer 2 klontjes","Ongeveer 5 klontjes (21 gram suiker)","Ongeveer 8 klontjes","Er zit geen suiker in, want het is fruit"], correct:1, explain:"Een pakje appelsap van 200ml bevat gemiddeld zo'n 21 gram suiker — dat zijn ongeveer 5 suikerklontjes!" },
+  { q:"Welk vak in de 'Schijf van Vijf' is het grootst en vormt de basis van een gezonde maaltijd?", opts:["Zuivel, noten en vis","Groente en fruit","Smeer- en bereidingsvetten","Brood, graanproducten en aardappelen"], correct:1, explain:"Groente en fruit vormen het grootste vak van de Schijf van Vijf. Probeer elke dag minimaal 250g groente en 2 stuks fruit te eten." },
+  { q:"Wat wordt bedoeld met de term 'zonder toegevoegde suikers' op een etiket?", opts:["Het product bevat helemaal geen suiker","Er is geen extra suiker door de fabrikant toegevoegd (maar er kan wel natuurlijke suiker in zitten)","Het product is altijd gezonder dan de normale variant","Het product bevat alleen kunstmatige zoetstoffen"], correct:1, explain:"'Zonder toegevoegde suikers' betekent dat de fabrikant geen extra suiker heeft toegevoegd. Van nature aanwezige suikers kunnen nog steeds aanwezig zijn!" },
+  { q:"Waarom is het eten van een hele appel gezonder dan het drinken van een glas appelsap?", opts:["In een hele appel zitten meer vezels die de suikeropname vertragen","In appelsap zitten giftige stoffen van de schil","Een hele appel bevat minder calorieën dan sap","Er is geen verschil, suiker is suiker"], correct:0, explain:"Een hele appel bevat veel vezels. Die vezels vertragen de opname van suiker in je bloed, waardoor je geen snelle piek en dip krijgt." },
+  { q:"Welke supermarktstrategie wordt vaak gebruikt om ongezonde producten aan kinderen te verkopen?", opts:["Producten op de bovenste plank zetten","Kleurrijke verpakkingen op ooghoogte van kinderen plaatsen","Alleen groente en fruit bij de kassa leggen","Producten zonder plaatjes verkopen"], correct:1, explain:"Supermarkten plaatsen ongezonde producten bewust op ooghoogte van kinderen, met kleurrijke verpakkingen om de aandacht te trekken." },
+  { q:"Wat is een 'verborgen suiker'?", opts:["Suiker die met een microscoop moet worden gezocht","Suiker in producten waarvan je niet direct verwacht dat ze zoet zijn (zoals ketchup of pastasaus)","Suiker die alleen in de fabriek zichtbaar is","Suiker die pas ontstaat na het koken"], correct:1, explain:"Verborgen suikers zitten in producten zoals ketchup, pastasaus, soep of ontbijtgranen — producten die je niet direct als 'zoet' beschouwt." },
+  { q:"Wat is de beste dorstlesser volgens de Schijf van Vijf?", opts:["Light-frisdrank","Water en thee zonder suiker","Isotone sportdranken","Vruchtensap aangelengd met water"], correct:1, explain:"Water en thee zonder suiker zijn de beste keuze om dorst te lessen. Ze bevatten geen calorieën, suiker of kunstmatige toevoegingen." },
+  { q:"Welke naam op een etiket wijst NIET op een vorm van suiker?", opts:["Dextrose","Natrium (dit is zout)","Maltodextrine","Agavesiroop"], correct:1, explain:"Natrium is zout, geen suiker! Dextrose, maltodextrine en agavesiroop zijn allemaal vormen van suiker op etiketten." },
+  { q:"Wat doet te veel suiker met je concentratie op school?", opts:["Je krijgt een energie-dip (after-sugar crash) na een korte piek","Je kunt de hele dag beter opletten","Suiker heeft geen invloed op je hersenen","Je wordt er alleen maar rustiger van"], correct:0, explain:"Na een suikerpiek daalt je bloedsuikerspiegel snel weer. Die 'sugar crash' zorgt voor vermoeidheid en slechte concentratie." },
+  { q:"Waarom staan gezonde producten zoals groente vaak aan het begin van de supermarktroute?", opts:["Zodat ze niet geplet worden onder andere boodschappen","Zodat je een 'gezond' gevoel krijgt en later makkelijker ongezonde dingen koopt","Omdat groente het zwaarst is om te tillen","Groente moet altijd dicht bij de ingang staan voor de ventilatie"], correct:1, explain:"Als je eerst gezonde producten in je mandje legt, voel je je al 'goed bezig' en ben je later sneller geneigd iets ongezonds toe te voegen." }
 ];
 
-const letters = ['A','B','C','D'];
-let current = 0, score = 0, answered = false;
-let shuffledOpts = []; // shuffled options for current question, tracking correct index
+const LETTERS = ['A','B','C','D'];
+let current=0, score=0, answered=false, username='';
+let correctPositions=[], shuffledOpts=[];
+window._localScores = [];
 
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
+function $(id){ return document.getElementById(id); }
+function showScreen(id) {
+  ['screen-start','screen-quiz','screen-result'].forEach(s => $(s).style.display = s===id ? 'flex' : 'none');
+  $('result-footer').style.display = id==='screen-result' ? 'block' : 'none';
 }
 
-function startQuiz() {
-  document.getElementById('start').style.display = 'none';
-  document.getElementById('quiz').style.display = 'flex';
-  document.getElementById('quiz').style.flexDirection = 'column';
-  document.getElementById('quiz').style.alignItems = 'center';
+function makePositions(n) {
+  const pool = Array.from({length:n}, (_,i)=>i%4);
+  for (let i=pool.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+  for (let i=2;i<pool.length;i++) {
+    if (pool[i]===pool[i-1]&&pool[i]===pool[i-2]) {
+      for (let j=i+1;j<pool.length;j++) { if(pool[j]!==pool[i]){[pool[i],pool[j]]=[pool[j],pool[i]];break;} }
+    }
+  }
+  return pool;
+}
+function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
+function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+// ── Privacy modal ──
+function openPrivacy() { document.getElementById('privacyModal').classList.add('open'); }
+function closePrivacy() { document.getElementById('privacyModal').classList.remove('open'); }
+function toggleConsent() {
+  const cb = $('consentCheck'); cb.checked = !cb.checked; checkConsent();
+}
+function checkConsent() {
+  if($('consentCheck').checked) {
+    $('consentError').style.display='none';
+  }
+}
+document.getElementById('privacyModal').addEventListener('click', function(e){
+  if(e.target===this) closePrivacy();
+});
+
+// ── Start ──
+function handleStart() {
+  const val = $('usernameInput').value.trim();
+  let ok = true;
+  if (val.length < 2) {
+    $('usernameError').style.display='block';
+    $('usernameInput').style.borderColor='var(--wrong)';
+    ok = false;
+  } else {
+    $('usernameError').style.display='none';
+    $('usernameInput').style.borderColor='var(--border)';
+  }
+  if (!$('consentCheck').checked) {
+    $('consentError').style.display='block';
+    ok = false;
+  } else {
+    $('consentError').style.display='none';
+  }
+  if (!ok) return;
+  username = val;
+  current=0; score=0;
+  correctPositions = makePositions(questions.length);
+  showScreen('screen-quiz');
   loadQuestion();
 }
+$('usernameInput').addEventListener('keydown', e=>{ if(e.key==='Enter') handleStart(); });
 
+// ── Load question ──
 function loadQuestion() {
   answered = false;
   const q = questions[current];
+  const pos = correctPositions[current];
+  const wrongs = shuffle(q.opts.map((t,i)=>({t,i})).filter(o=>o.i!==q.correct));
+  shuffledOpts = []; let wi=0;
+  for(let i=0;i<4;i++) shuffledOpts.push(i===pos ? {text:q.opts[q.correct],ok:true} : {text:wrongs[wi++].t,ok:false});
 
-  // Build indexed options and shuffle them
-  const indexed = q.opts.map((text, i) => ({ text, originalIdx: i }));
-  shuffledOpts = shuffle(indexed);
-  const newCorrect = shuffledOpts.findIndex(o => o.originalIdx === q.correct);
+  $('qNum').textContent = `Vraag ${current+1}`;
+  $('qText').textContent = q.q;
+  $('qLabel').textContent = `Vraag ${current+1} van ${questions.length}`;
+  $('scoreLabel').textContent = `${username} · Score: ${score}`;
+  $('progressFill').style.width = `${(current/questions.length)*100}%`;
+  $('feedback').className = 'feedback';
+  $('btnNext').className = 'btn-next';
 
-  document.getElementById('qNum').textContent = `Vraag ${current + 1}`;
-  document.getElementById('qText').textContent = q.q;
-  document.getElementById('qLabel').textContent = `Vraag ${current + 1} van ${questions.length}`;
-  document.getElementById('scoreLabel').textContent = `Score: ${score}`;
-  document.getElementById('progressFill').style.width = `${((current) / questions.length) * 100}%`;
-
-  const fb = document.getElementById('feedback');
-  fb.className = 'feedback';
-  document.getElementById('btnNext').className = 'btn-next';
-
-  const opts = document.getElementById('options');
-  opts.innerHTML = '';
-  shuffledOpts.forEach((opt, i) => {
-    const div = document.createElement('div');
-    div.className = 'option';
-    div.innerHTML = `<div class="option-letter">${letters[i]}</div><div class="option-text">${opt.text}</div>`;
-    div.onclick = () => selectAnswer(i, div, newCorrect, q);
-    opts.appendChild(div);
+  const wrap = $('options'); wrap.innerHTML='';
+  shuffledOpts.forEach((opt,i)=>{
+    const d=document.createElement('div'); d.className='option';
+    d.innerHTML=`<div class="option-letter">${LETTERS[i]}</div><div class="option-text">${esc(opt.text)}</div>`;
+    d.onclick=()=>pick(i,d,pos,q);
+    wrap.appendChild(d);
   });
-
-  // Animate card
-  const card = document.querySelector('.quiz-card');
-  card.style.animation = 'none';
-  card.offsetHeight;
-  card.style.animation = 'slideUp 0.4s ease both';
+  const card=document.querySelector('.quiz-card');
+  card.style.animation='none'; card.offsetHeight; card.style.animation='slideUp 0.4s ease both';
 }
 
-function selectAnswer(idx, el, correctIdx, q) {
-  if (answered) return;
-  answered = true;
-
-  const allOpts = document.querySelectorAll('.option');
-  allOpts.forEach(o => o.classList.add('locked'));
-
-  const fb = document.getElementById('feedback');
-  const isCorrect = idx === correctIdx;
-
-  if (isCorrect) {
-    score++;
-    el.classList.add('correct');
-    fb.className = 'feedback correct-fb show';
-    document.getElementById('fbIcon').textContent = '✓';
-    document.getElementById('fbText').textContent = q.explain;
-  } else {
-    el.classList.add('wrong');
-    allOpts[correctIdx].classList.add('correct');
-    fb.className = 'feedback wrong-fb show';
-    document.getElementById('fbIcon').textContent = '✗';
-    document.getElementById('fbText').textContent = `Niet helemaal — ${q.explain}`;
-  }
-
-  document.getElementById('scoreLabel').textContent = `Score: ${score}`;
-  document.getElementById('btnNext').className = `btn-next show`;
-  document.getElementById('btnNext').textContent = current < questions.length - 1 ? 'Volgende vraag →' : 'Bekijk resultaat →';
+// ── Pick answer ──
+function pick(idx, el, correctIdx, q) {
+  if(answered) return; answered=true;
+  const all=document.querySelectorAll('.option');
+  all.forEach(o=>o.classList.add('locked'));
+  const ok = idx===correctIdx;
+  if(ok){ score++; el.classList.add('correct'); $('feedback').className='feedback correct-fb show'; $('fbIcon').textContent='✓'; $('fbText').textContent=q.explain; }
+  else { el.classList.add('wrong'); all[correctIdx].classList.add('correct'); $('feedback').className='feedback wrong-fb show'; $('fbIcon').textContent='✗'; $('fbText').textContent=`Niet helemaal — ${q.explain}`; }
+  $('scoreLabel').textContent=`${username} · Score: ${score}`;
+  $('btnNext').className='btn-next show';
+  $('btnNext').textContent = current<questions.length-1 ? 'Volgende vraag →' : 'Bekijk resultaat →';
 }
 
 function nextQuestion() {
   current++;
-  if (current < questions.length) {
-    loadQuestion();
-  } else {
-    showResult();
-  }
+  if(current<questions.length) loadQuestion(); else showResult();
 }
 
-function showResult() {
-  document.getElementById('quiz').style.display = 'none';
-  const res = document.getElementById('result');
-  res.style.display = 'flex';
-  res.style.flexDirection = 'column';
-  res.style.alignItems = 'center';
+// ── Result ──
+async function showResult() {
+  showScreen('screen-result');
+  const pct = Math.round((score/questions.length)*100);
+  $('scoreNum').textContent=`${score}/10`;
+  $('statCorrect').textContent=score;
+  $('statWrong').textContent=questions.length-score;
+  $('statPct').textContent=`${pct}%`;
+  setTimeout(()=>{ $('ringFill').style.strokeDashoffset = 364.4-(pct/100)*364.4; },100);
 
-  const pct = Math.round((score / questions.length) * 100);
-  document.getElementById('scoreNum').textContent = `${score}/10`;
-  document.getElementById('statCorrect').textContent = score;
-  document.getElementById('statWrong').textContent = questions.length - score;
-  document.getElementById('statPct').textContent = `${pct}%`;
+  const t=['Blijf leren! 📚','Bijna! 🌱','Goed bezig! 👍','Uitstekend! 🏆','Perfect! 🌟'];
+  const m=['Geen zorgen — speel opnieuw en let op de uitleg bij elke vraag!','Je bent op de goede weg! Met wat extra kennis over etiketten word je nóg beter.','Solide score! Je hebt een goede basis over voeding.','Indrukwekkend! Je weet heel goed wat gezond eten inhoudt.','Geweldig — 10 uit 10! Jij bent een echte voedingsexpert. 🎉'];
+  const tier = pct===100?4:pct>=80?3:pct>=60?2:pct>=40?1:0;
+  $('resultTitle').textContent=t[tier];
+  $('resultMsg').textContent=m[tier];
 
-  // Ring animation
-  const circumference = 2 * Math.PI * 58;
-  const offset = circumference - (pct / 100) * circumference;
-  setTimeout(() => {
-    document.getElementById('ringFill').style.strokeDashoffset = offset;
-  }, 100);
-
-  // Title & message
-  let title, msg;
-  if (pct === 100) {
-    title = "Perfect! 🌟"; msg = "Geweldig — je scoort 10 uit 10! Jij bent een echte voedingsexpert. Zo'n kennis verdient een gezonde beloning!";
-  } else if (pct >= 80) {
-    title = "Uitstekend! 🏆"; msg = "Indrukwekkend resultaat! Je weet heel goed wat gezond eten inhoudt. Een paar kleine verbeterpuntjes en je bent een absolute expert.";
-  } else if (pct >= 60) {
-    title = "Goed bezig! 👍"; msg = "Dat is een solide score! Je hebt een goede basiskennis over voeding. Met wat extra aandacht voor etiketten en verborgen suikers word je nóg beter.";
-  } else if (pct >= 40) {
-    title = "Bijna! 🌱"; msg = "Je bent op de goede weg! Er valt nog het nodige te leren over suikers, supermarkttactieken en etiketten lezen. Probeer het nog eens!";
-  } else {
-    title = "Blijf leren! 📚"; msg = "Geen zorgen — voeding is een complex onderwerp. Speel de quiz opnieuw en let op de uitleg bij elke vraag. Je wordt er zeker beter in!";
+  // Save score
+  let saved = false;
+  if(window._fbSave) saved = await window._fbSave(username, score);
+  if(!saved) {
+    const ex = window._localScores.findIndex(s=>s.name===username);
+    if(ex>=0){ if(score>window._localScores[ex].score) window._localScores[ex].score=score; }
+    else window._localScores.push({name:username,score});
+    window._localScores.sort((a,b)=>b.score-a.score);
   }
 
-  document.getElementById('resultTitle').textContent = title;
-  document.getElementById('resultMsg').textContent = msg;
+  // Leaderboard
+  $('lbList').innerHTML='<div class="lb-loading"><div class="lb-dot"></div><div class="lb-dot"></div><div class="lb-dot"></div></div>';
+  if(window._fbListen) window._fbListen(drawLB);
+  else drawLB(window._localScores);
+}
+
+function drawLB(entries) {
+  const list=$('lbList');
+  if(!entries||entries.length===0){ list.innerHTML='<div class="lb-empty">Nog geen scores. Jij bent de eerste! 🎉</div>'; return; }
+  const rc=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
+  const re=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
+  list.innerHTML = entries.map((e,i)=>`
+    <div class="lb-row ${e.name===username?'me':''}" style="animation-delay:${i*0.05}s">
+      <div class="lb-rank ${rc(i)}">${re(i)}</div>
+      <div class="lb-name">${esc(e.name)}${e.name===username?'<span class="lb-you">▶ jij</span>':''}</div>
+      <div class="lb-bar-wrap"><div class="lb-bar-bg"><div class="lb-bar-fill" style="width:${(e.score/10)*100}%"></div></div></div>
+      <div class="lb-val">${e.score}/10</div>
+    </div>`).join('');
 }
 
 function restartQuiz() {
-  current = 0; score = 0;
-  document.getElementById('result').style.display = 'none';
-  document.getElementById('ringFill').style.strokeDashoffset = '364.4';
-  document.getElementById('quiz').style.display = 'flex';
-  document.getElementById('quiz').style.flexDirection = 'column';
-  document.getElementById('quiz').style.alignItems = 'center';
+  current=0; score=0;
+  correctPositions=makePositions(questions.length);
+  $('ringFill').style.strokeDashoffset='364.4';
+  showScreen('screen-quiz');
   loadQuestion();
 }
 </script>
