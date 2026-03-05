@@ -212,7 +212,6 @@ h1,h2,h3{font-family:'Fraunces',serif;line-height:1.1}
 @media(max-width:560px){.a-opts-grid{grid-template-columns:1fr}}
 .a-opt{padding:12px 16px;border-radius:10px;border:1.5px solid var(--border2);background:var(--off);display:flex;align-items:flex-start;gap:10px;transition:all .25s}
 .a-opt.is-correct{border-color:var(--green);background:var(--green-bg)}
-.a-opt.has-answers{border-color:var(--blue);background:var(--blue-bg)}
 .a-opt.is-correct.has-answers{border-color:var(--green);background:var(--green-bg)}
 .a-opt-letter{width:28px;height:28px;min-width:28px;border-radius:7px;background:var(--border2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--ink2)}
 .a-opt.is-correct .a-opt-letter{background:var(--green);color:#fff}
@@ -799,13 +798,11 @@ function listenAnswers(qIdx,sOpts,q){
     entries.forEach(a=>{ if(a.optionIndex!==undefined) counts[a.optionIndex]++; });
     counts.forEach((c,i)=>{
       const el=$(`aCnt${i}`); if(el) el.textContent=c+(c===1?' antwoord':' antwoorden');
-      const opt=$(`aOpt${i}`); if(opt&&c>0) opt.classList.add('has-answers');
     });
     $('aAnsweredPill').innerHTML=`<span class="dot dot-pulse"></span> ${entries.length} geantwoord`;
     $('aLiveCount').textContent=entries.length;
     $('aLiveChips').innerHTML=entries.map(a=>{
-      const isC=sOpts[a.optionIndex]===correctText;
-      return `<span class="a-live-chip ${isC?'c':'w'}">${esc(a.name)}</span>`;
+      return `<span class="a-live-chip">${esc(a.name)}</span>`;
     }).join('');
   });
 }
