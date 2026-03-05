@@ -3,545 +3,278 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Voedingsquiz — Slim Eten</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<title>Slim Eten — Voedingsquiz</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0d1117; --surface: #161b22; --card: #1c2330;
-    --accent: #4ade80; --accent2: #facc15; --wrong: #f87171;
-    --text: #f0f6fc; --muted: #8b949e; --border: #30363d; --radius: 16px;
-    --admin-color: #818cf8;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif;
-    min-height: 100vh; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; padding: 24px 16px;
-    background-image:
-      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(74,222,128,0.12), transparent),
-      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(250,204,21,0.07), transparent);
-  }
+:root {
+  --white:#ffffff; --off:#f7f6f3; --off2:#eeecea;
+  --border:#e2deda; --border2:#d4cfc9;
+  --ink:#1a1714; --ink2:#4a4540; --ink3:#8c857e;
+  --green:#22c55e; --green-bg:#f0fdf4; --green-b:#bbf7d0;
+  --red:#ef4444; --red-bg:#fef2f2; --red-b:#fecaca;
+  --amber:#f59e0b; --amber-bg:#fffbeb;
+  --blue:#3b82f6; --blue-bg:#eff6ff;
+  --indigo:#6366f1;
+  --r:14px;
+  --sh-sm:0 1px 3px rgba(0,0,0,.07),0 1px 2px rgba(0,0,0,.04);
+  --sh:0 4px 16px rgba(0,0,0,.08),0 1px 4px rgba(0,0,0,.04);
+  --sh-lg:0 12px 40px rgba(0,0,0,.10),0 4px 12px rgba(0,0,0,.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--off);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:'Fraunces',serif;line-height:1.1}
+.hidden{display:none!important}
 
-  /* ─────────────────────────────────────────
-     TOP BAR
-  ───────────────────────────────────────── */
-  #topBar {
-    position: fixed; top: 0; right: 0; z-index: 600;
-    padding: 14px 20px; display: flex; align-items: center; gap: 10px;
-    pointer-events: none;
-  }
-  #topBar > * { pointer-events: auto; }
+/* Pills */
+.pill{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:99px;font-size:11px;font-weight:600;letter-spacing:1px;text-transform:uppercase}
+.pill-green {background:var(--green-bg);border:1px solid var(--green-b);color:#15803d}
+.pill-red   {background:var(--red-bg);border:1px solid var(--red-b);color:#b91c1c}
+.pill-amber {background:var(--amber-bg);border:1px solid #fde68a;color:#92400e}
+.pill-blue  {background:var(--blue-bg);border:1px solid #bfdbfe;color:#1d4ed8}
+.pill-indigo{background:#eef2ff;border:1px solid #c7d2fe;color:#4338ca}
+.dot{width:7px;height:7px;border-radius:50%;background:currentColor}
+.dot-pulse{animation:dotpulse 1.4s ease-in-out infinite}
+@keyframes dotpulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.75)}}
 
-  #btnAdminLogin {
-    display: flex; align-items: center; gap: 7px;
-    padding: 8px 16px; border-radius: 99px;
-    background: rgba(28,35,48,0.9); border: 1px solid var(--border);
-    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
-    color: var(--muted); cursor: pointer; transition: all 0.2s;
-    backdrop-filter: blur(8px);
-  }
-  #btnAdminLogin:hover { border-color: var(--admin-color); color: var(--admin-color); }
-  #btnAdminLogin.hidden { display: none; }
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;border-radius:10px;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;transition:all .18s ease;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--ink);color:#fff}
+.btn-primary:hover{background:#2d2926;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#16a34a;box-shadow:0 4px 14px rgba(34,197,94,.3)}
+.btn-red{background:var(--red);color:#fff}
+.btn-red:hover{background:#dc2626}
+.btn-outline{background:var(--white);color:var(--ink2);border:1.5px solid var(--border2)}
+.btn-outline:hover{border-color:var(--ink);color:var(--ink)}
+.btn-lg{padding:16px 32px;font-size:16px;border-radius:12px}
+.btn-full{width:100%}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
 
-  #adminChip {
-    display: none; align-items: center; gap: 8px;
-    padding: 5px 12px 5px 6px; border-radius: 99px;
-    background: rgba(129,140,248,0.1); border: 1px solid rgba(129,140,248,0.25);
-    backdrop-filter: blur(8px); animation: fadeIn 0.3s ease;
-  }
-  #adminChip.show { display: flex; }
-  #adminChip img {
-    width: 24px; height: 24px; border-radius: 50%; object-fit: cover;
-    border: 1.5px solid rgba(129,140,248,0.4);
-  }
-  #adminChip .chip-name { font-size: 12px; font-weight: 500; color: var(--admin-color); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  #btnLogout {
-    background: none; border: none; cursor: pointer;
-    color: var(--muted); font-size: 11px; font-family: 'DM Sans', sans-serif;
-    padding: 3px 6px; border-radius: 6px; transition: color 0.2s; display: none;
-  }
-  #btnLogout:hover { color: var(--wrong); }
-  #btnLogout.show { display: block; }
+/* Inputs */
+.field-label{font-size:11px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;color:var(--ink3);margin-bottom:7px;display:block}
+.field-input{width:100%;padding:14px 16px;border-radius:10px;border:1.5px solid var(--border2);background:var(--white);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);outline:none;transition:border-color .18s,box-shadow .18s}
+.field-input:focus{border-color:var(--ink);box-shadow:0 0 0 3px rgba(26,23,20,.07)}
+.field-input::placeholder{color:var(--ink3)}
+.field-error{font-size:12px;color:var(--red);margin-top:5px;display:none}
 
-  /* ─────────────────────────────────────────
-     ADMIN PANEL (slide-in balk onder topbar)
-  ───────────────────────────────────────── */
-  #adminPanel {
-    display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 500;
-    background: rgba(12,16,22,0.96); border-bottom: 1px solid rgba(129,140,248,0.18);
-    backdrop-filter: blur(16px); padding: 60px 20px 18px;
-  }
-  #adminPanel.show { display: block; animation: slideDownPanel 0.3s ease; }
-  @keyframes slideDownPanel { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+/* Splash */
+#splash{position:fixed;inset:0;background:var(--off);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9999;transition:opacity .4s ease}
+#splash.fade{opacity:0;pointer-events:none}
+.splash-logo{font-family:'Fraunces',serif;font-size:2rem;font-weight:900}
+.splash-logo span{color:var(--green)}
+.splash-dots{display:flex;gap:6px}
+.splash-dot{width:7px;height:7px;border-radius:50%;background:var(--ink3);animation:bounce 1s infinite}
+.splash-dot:nth-child(2){animation-delay:.18s}
+.splash-dot:nth-child(3){animation-delay:.36s}
+@keyframes bounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-8px)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes pring{0%{transform:scale(.8);opacity:.8}100%{transform:scale(1.5);opacity:0}}
+@keyframes timerShake{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
 
-  .ap-inner { max-width: 720px; margin: 0 auto; }
-  .ap-label {
-    font-size: 9px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
-    color: var(--admin-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-  }
-  .ap-label::after { content:''; flex:1; height:1px; background: rgba(129,140,248,0.15); }
-  .ap-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+/* ══ ADMIN LOGIN BUTTON (top-right float) ══ */
+#btnAdminTopLogin{
+  position:fixed;top:14px;right:16px;z-index:200;
+  display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:99px;
+  background:var(--white);border:1px solid var(--border2);
+  font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;
+  color:var(--ink2);cursor:pointer;transition:all .18s;box-shadow:var(--sh-sm);
+}
+#btnAdminTopLogin:hover{border-color:var(--ink);color:var(--ink)}
+#btnAdminTopLogin.hidden{display:none!important}
 
-  /* Status toggle card */
-  .ap-toggle-card {
-    display: flex; align-items: center; justify-content: space-between; gap: 20px;
-    padding: 14px 18px; border-radius: 14px;
-    background: var(--card); border: 1.5px solid var(--border);
-    flex: 0 0 auto; min-width: 200px; transition: border-color 0.3s;
-  }
-  .ap-toggle-card.open   { border-color: rgba(74,222,128,0.4); }
-  .ap-toggle-card.closed { border-color: rgba(248,113,113,0.4); }
-  .ap-toggle-info { display: flex; flex-direction: column; gap: 2px; }
-  .ap-toggle-sublabel { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 600; }
-  .ap-status-row { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; }
-  .ap-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .state-open  .ap-status-dot { background: var(--accent); animation: pulse 1.5s infinite; }
-  .state-open  .ap-status-text { color: var(--accent); }
-  .state-closed .ap-status-dot { background: var(--wrong); }
-  .state-closed .ap-status-text { color: var(--wrong); }
+/* ══ ADMIN LOGIN OVERLAY ══ */
+#adminLoginOverlay{
+  position:fixed;inset:0;background:rgba(247,246,243,.96);
+  display:none;align-items:center;justify-content:center;padding:20px;
+  z-index:800;backdrop-filter:blur(4px);
+}
+#adminLoginOverlay.show{display:flex;animation:fadeIn .2s ease}
+.admin-login-box{
+  background:var(--white);border:1px solid var(--border);border-radius:20px;
+  padding:44px 38px;max-width:400px;width:100%;
+  box-shadow:var(--sh-lg);text-align:center;animation:fadeUp .3s ease;
+}
+.admin-login-icon{font-size:40px;margin-bottom:14px}
+.admin-login-box h2{font-size:1.6rem;font-weight:900;margin-bottom:6px}
+.admin-login-box .sub{color:var(--ink3);font-size:13.5px;margin-bottom:28px;line-height:1.6}
+.btn-google{width:100%;padding:13px 20px;background:var(--white);color:var(--ink);border:1.5px solid var(--border2);border-radius:10px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .18s;margin-bottom:14px}
+.btn-google:hover{border-color:var(--ink);background:var(--off)}
+.divider{display:flex;align-items:center;gap:10px;margin-bottom:14px;color:var(--ink3);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.login-form{display:flex;flex-direction:column;gap:9px;text-align:left}
+.login-err{font-size:12px;color:var(--red);text-align:center;min-height:16px;margin-top:2px}
 
-  /* Toggle switch */
-  .toggle-pill { position: relative; width: 46px; height: 24px; flex-shrink: 0; }
-  .toggle-pill input { opacity:0; width:0; height:0; }
-  .toggle-track {
-    position: absolute; inset: 0; border-radius: 99px;
-    background: var(--surface); border: 1.5px solid var(--border); cursor: pointer; transition: all 0.25s;
-  }
-  .toggle-track::before {
-    content:''; position:absolute; left:3px; top:50%; transform:translateY(-50%);
-    width:14px; height:14px; border-radius:50%; background: var(--muted); transition: all 0.25s;
-  }
-  .toggle-pill input:checked + .toggle-track { background: rgba(74,222,128,0.12); border-color: var(--accent); }
-  .toggle-pill input:checked + .toggle-track::before { left: calc(100% - 17px); background: var(--accent); }
+/* ══ STUDENT VIEW ══ */
+#studentView{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 16px}
+.s-header{text-align:center;margin-bottom:32px;animation:fadeUp .6s ease both}
+.s-header .quiz-badge{display:inline-block;background:var(--green-bg);border:1px solid var(--green-b);color:#15803d;font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:4px 14px;border-radius:99px;margin-bottom:12px}
+.s-header h1{font-size:clamp(2.2rem,6vw,3.4rem);font-weight:900;letter-spacing:-1px}
+.s-header h1 em{font-style:italic;color:var(--green)}
+.s-header p{color:var(--ink3);margin-top:8px;font-size:15px;font-weight:300}
+.s-card{background:var(--white);border:1px solid var(--border);border-radius:20px;padding:40px;max-width:500px;width:100%;box-shadow:var(--sh-lg);animation:fadeUp .5s ease both}
 
-  /* Message card */
-  .ap-msg-card {
-    flex: 1; min-width: 220px; padding: 14px 18px; border-radius: 14px;
-    background: var(--card); border: 1px solid var(--border);
-    display: flex; flex-direction: column; gap: 8px;
-  }
-  .ap-msg-sublabel { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--admin-color); font-weight: 600; }
-  .ap-msg-row { display: flex; gap: 7px; }
-  .ap-msg-input {
-    flex: 1; padding: 9px 12px; background: var(--surface);
-    border: 1.5px solid var(--border); border-radius: 10px;
-    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;
-    transition: border-color 0.2s;
-  }
-  .ap-msg-input:focus { border-color: var(--admin-color); }
-  .ap-msg-input::placeholder { color: var(--muted); }
-  .ap-save-btn {
-    padding: 9px 16px; background: var(--admin-color); color: #fff;
-    font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600;
-    border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s;
-    white-space: nowrap; display: flex; align-items: center; gap: 5px;
-  }
-  .ap-save-btn:hover { background: #a5b4fc; transform: translateY(-1px); }
-  .ap-save-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
-  .ap-saved-msg { font-size: 11px; color: var(--accent); height: 13px; }
+/* Wacht scherm */
+.wait-icon{font-size:56px;text-align:center;margin-bottom:18px;animation:floatY 3s ease-in-out infinite}
+.wait-title{font-size:1.6rem;font-weight:900;text-align:center;margin-bottom:8px}
+.wait-sub{color:var(--ink3);text-align:center;font-size:14px;line-height:1.6;margin-bottom:24px}
+.wait-name-chip{display:flex;justify-content:center;align-items:center;gap:8px;background:var(--off);border:1px solid var(--border);border-radius:99px;padding:8px 18px;font-size:13.5px;font-weight:500;margin-bottom:24px}
+.name-label{color:var(--ink3);font-size:11px;text-transform:uppercase;letter-spacing:1px}
+.pulse-ring{width:56px;height:56px;border-radius:50%;border:2px solid var(--green-b);position:relative;margin:0 auto 20px;display:flex;align-items:center;justify-content:center}
+.pulse-ring::before,.pulse-ring::after{content:'';position:absolute;inset:-8px;border-radius:50%;border:1.5px solid var(--green-b);animation:pring 2s ease-out infinite}
+.pulse-ring::after{animation-delay:1s}
 
-  /* LB button */
-  .ap-lb-btn {
-    padding: 14px 18px; border-radius: 14px;
-    background: var(--card); border: 1px solid var(--border);
-    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
-    color: var(--text); cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; gap: 8px; white-space: nowrap;
-  }
-  .ap-lb-btn:hover { border-color: var(--accent2); color: var(--accent2); transform: translateY(-1px); }
+/* Vraag (student) */
+.sq-meta{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.sq-qnum{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3)}
+.sq-timer{font-family:'Fraunces',serif;font-size:2rem;font-weight:900;color:var(--ink);min-width:52px;text-align:right;transition:color .3s}
+.sq-timer.urgent{color:var(--red);animation:timerShake .3s ease infinite}
+.sq-progress{height:4px;background:var(--off2);border-radius:99px;overflow:hidden;margin-bottom:28px}
+.sq-progress-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--amber));border-radius:99px;transition:width 1s linear}
+.sq-question{font-family:'Fraunces',serif;font-size:clamp(1.1rem,2.8vw,1.45rem);font-weight:700;line-height:1.45;margin-bottom:24px}
+.sq-options{display:flex;flex-direction:column;gap:10px}
+.sq-option{display:flex;align-items:center;gap:12px;padding:14px 18px;border:1.5px solid var(--border2);border-radius:12px;background:var(--white);cursor:pointer;transition:all .16s ease;user-select:none}
+.sq-option:hover:not(.locked){border-color:var(--ink);background:var(--off);transform:translateX(3px)}
+.sq-option-letter{width:32px;height:32px;min-width:32px;border-radius:8px;background:var(--off);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--ink2);transition:all .16s}
+.sq-option-text{font-size:14px;line-height:1.45;color:var(--ink)}
+.sq-option.selected{border-color:var(--ink);background:var(--ink)}
+.sq-option.selected .sq-option-letter{background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.2);color:#fff}
+.sq-option.selected .sq-option-text{color:#fff}
+.sq-option.correct{border-color:var(--green);background:var(--green-bg)}
+.sq-option.correct .sq-option-letter{background:var(--green);border-color:var(--green);color:#fff}
+.sq-option.wrong{border-color:var(--red);background:var(--red-bg)}
+.sq-option.wrong .sq-option-letter{background:var(--red);border-color:var(--red);color:#fff}
+.sq-option.locked{cursor:default}
+.sq-option.locked:not(.correct):not(.wrong):not(.selected){opacity:.5}
 
-  /* ─────────────────────────────────────────
-     LOGIN MODAL
-  ───────────────────────────────────────── */
-  .overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.75); z-index: 1100;
-    align-items: center; justify-content: center; padding: 20px;
-  }
-  .overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+.sq-answered-banner{margin-top:18px;padding:14px 18px;border-radius:12px;display:none;align-items:flex-start;gap:10px;font-size:14px;font-weight:500}
+.sq-answered-banner.show{display:flex}
+.sq-answered-banner.correct-b{background:var(--green-bg);border:1px solid var(--green-b);color:#15803d}
+.sq-answered-banner.wrong-b{background:var(--red-bg);border:1px solid var(--red-b);color:#b91c1c}
+.ban-icon{font-size:20px;line-height:1;flex-shrink:0}
+.sq-pts{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:900;margin-top:3px}
+.sq-wait-next{margin-top:18px;padding:14px 18px;border-radius:12px;background:var(--amber-bg);border:1px solid #fde68a;color:#92400e;font-size:13.5px;display:none;align-items:center;gap:8px}
+.sq-wait-next.show{display:flex}
 
-  .login-box {
-    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
-    padding: 44px 38px; max-width: 400px; width: 100%;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
-    text-align: center; animation: slideUp 0.3s ease;
-  }
-  .login-icon { font-size: 40px; margin-bottom: 14px; }
-  .login-box h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
-  .login-box .login-sub { color: var(--muted); font-size: 13px; margin-bottom: 28px; line-height: 1.55; }
+/* Resultaat student */
+.res-ring-wrap{position:relative;width:110px;height:110px;margin:0 auto 20px}
+.res-ring-wrap svg{transform:rotate(-90deg)}
+.res-ring-bg{fill:none;stroke:var(--off2);stroke-width:8}
+.res-ring-fill{fill:none;stroke:var(--green);stroke-width:8;stroke-linecap:round;stroke-dasharray:314;stroke-dashoffset:314;transition:stroke-dashoffset 1.2s cubic-bezier(.4,0,.2,1) .3s}
+.res-score-num{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Fraunces',serif;font-size:1.4rem;font-weight:900}
+.res-stats{display:flex;gap:12px;justify-content:center;margin:16px 0 24px;flex-wrap:wrap}
+.res-stat{background:var(--off);border:1px solid var(--border);border-radius:10px;padding:10px 16px;text-align:center}
+.res-stat-val{font-family:'Fraunces',serif;font-size:1.4rem;font-weight:700}
+.res-stat-val.g{color:var(--green)} .res-stat-val.r{color:var(--red)} .res-stat-val.b{color:var(--blue)}
+.res-stat-lbl{font-size:10px;color:var(--ink3);text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
 
-  .btn-google {
-    width: 100%; padding: 13px 20px; background: #fff; color: #1f1f1f;
-    border: none; border-radius: 12px; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    transition: all 0.2s; margin-bottom: 14px;
-  }
-  .btn-google:hover { background: #f1f3f4; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+/* ══ ADMIN VIEW ══ */
+#adminView{min-height:100vh;display:flex;flex-direction:column;background:var(--off)}
+.a-topbar{background:var(--white);border-bottom:1px solid var(--border);padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;position:sticky;top:0;z-index:100;box-shadow:var(--sh-sm)}
+.a-topbar-left{display:flex;align-items:center;gap:12px}
+.a-logo{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:900}
+.a-logo em{font-style:italic;color:var(--green)}
+.a-topbar-right{display:flex;align-items:center;gap:10px}
+.a-user-chip{display:flex;align-items:center;gap:7px;padding:6px 12px;background:var(--off);border:1px solid var(--border);border-radius:99px;font-size:12.5px;font-weight:500;color:var(--ink2)}
+.a-user-chip img{width:22px;height:22px;border-radius:50%}
+.a-body{flex:1;padding:28px 24px;max-width:1100px;margin:0 auto;width:100%}
+.a-screen{animation:fadeUp .4s ease}
 
-  .divider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-  .divider-row span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
-  .divider-row::before, .divider-row::after { content:''; flex:1; height:1px; background:var(--border); }
+/* Admin lobby */
+.a-lobby-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:24px}
+.a-lobby-title{font-size:1.8rem;font-weight:900;margin-bottom:4px}
+.a-lobby-sub{color:var(--ink3);font-size:14px}
+.a-stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.a-stat-card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px 22px;flex:1;min-width:110px}
+.a-stat-val{font-family:'Fraunces',serif;font-size:2rem;font-weight:900}
+.a-stat-lbl{font-size:11px;color:var(--ink3);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.a-section-label{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:12px}
+.a-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:28px;min-height:80px}
+.a-p-chip{background:var(--white);border:1px solid var(--border);border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:8px;animation:popIn .3s ease both;font-size:13.5px;font-weight:500}
+.a-p-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0}
+.a-p-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a-p-empty{color:var(--ink3);font-size:14px;grid-column:1/-1;display:flex;align-items:center;gap:8px;padding:20px 0}
 
-  .login-form { display: flex; flex-direction: column; gap: 10px; text-align: left; margin-bottom: 10px; }
-  .login-form input {
-    width: 100%; padding: 13px 15px; background: var(--surface);
-    border: 1.5px solid var(--border); border-radius: 12px;
-    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none;
-    transition: border-color 0.2s;
-  }
-  .login-form input:focus { border-color: var(--admin-color); }
-  .login-form input::placeholder { color: var(--muted); }
-  .btn-email-login {
-    width: 100%; padding: 13px; background: var(--admin-color); color: #fff;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-    border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
-  }
-  .btn-email-login:hover { background: #a5b4fc; transform: translateY(-1px); }
-  .login-error { font-size: 12px; color: var(--wrong); min-height: 16px; text-align: center; margin-top: 2px; }
-  .btn-cancel-login {
-    margin-top: 14px; background: none; border: none; cursor: pointer;
-    font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--muted); transition: color 0.2s;
-  }
-  .btn-cancel-login:hover { color: var(--text); }
+/* Admin vraag */
+.a-q-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:20px}
+.a-q-title{font-size:1.5rem;font-weight:900}
+.a-q-card{background:var(--white);border:1px solid var(--border);border-radius:16px;padding:28px;margin-bottom:20px}
+.a-q-text{font-family:'Fraunces',serif;font-size:1.3rem;font-weight:700;line-height:1.45;margin-bottom:20px}
+.a-timer-row{display:flex;align-items:center;gap:14px;margin-bottom:20px}
+.a-timer-num{font-family:'Fraunces',serif;font-size:2.4rem;font-weight:900;min-width:52px;transition:color .3s}
+.a-timer-num.urgent{color:var(--red)}
+.a-timer-bar{flex:1;height:8px;background:var(--off2);border-radius:99px;overflow:hidden}
+.a-timer-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--amber));border-radius:99px;transition:width 1s linear}
+.a-opts-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+@media(max-width:560px){.a-opts-grid{grid-template-columns:1fr}}
+.a-opt{padding:12px 16px;border-radius:10px;border:1.5px solid var(--border2);background:var(--off);display:flex;align-items:flex-start;gap:10px;transition:all .25s}
+.a-opt.is-correct{border-color:var(--green);background:var(--green-bg)}
+.a-opt.has-answers{border-color:var(--blue);background:var(--blue-bg)}
+.a-opt.is-correct.has-answers{border-color:var(--green);background:var(--green-bg)}
+.a-opt-letter{width:28px;height:28px;min-width:28px;border-radius:7px;background:var(--border2);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:var(--ink2)}
+.a-opt.is-correct .a-opt-letter{background:var(--green);color:#fff}
+.a-opt-body{flex:1}
+.a-opt-text{font-size:13.5px;line-height:1.45;margin-bottom:4px}
+.a-opt-count{font-size:11px;color:var(--ink3);font-weight:500}
+.a-opt.is-correct .a-opt-count{color:#15803d}
 
-  /* ─────────────────────────────────────────
-     LEADERBOARD MODAL (admin)
-  ───────────────────────────────────────── */
-  #lbAdminOverlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.8); z-index: 1200;
-    align-items: flex-start; justify-content: center;
-    padding: 20px; overflow-y: auto;
-  }
-  #lbAdminOverlay.open { display: flex; animation: fadeIn 0.2s ease; }
-  .lb-admin-box {
-    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
-    padding: 38px; max-width: 560px; width: 100%; margin: auto;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.7); animation: slideUp 0.3s ease;
-  }
-  .lb-admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
-  .lb-admin-header h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; }
-  .lb-close-btn {
-    width: 32px; height: 32px; border-radius: 9px;
-    background: var(--surface); border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    cursor: pointer; color: var(--muted); font-size: 15px; transition: all 0.2s;
-  }
-  .lb-close-btn:hover { border-color: var(--wrong); color: var(--wrong); }
-  .lb-admin-sub { color: var(--muted); font-size: 11.5px; margin-bottom: 22px; display: flex; align-items: center; gap: 6px; }
-  .lb-admin-list { display: flex; flex-direction: column; gap: 8px; }
-  .lb-admin-row {
-    display: flex; align-items: center; gap: 10px;
-    padding: 11px 14px; border-radius: 12px;
-    background: var(--surface); border: 1px solid var(--border);
-    animation: slideUp 0.35s ease both;
-  }
-  .lb-admin-rank { width: 28px; height: 28px; border-radius: 8px; font-size: 12px; font-weight: 700; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--card); color: var(--muted); }
-  .lb-admin-rank.gold   { background: rgba(250,204,21,0.15); color: var(--accent2); }
-  .lb-admin-rank.silver { background: rgba(148,163,184,0.15); color: #94a3b8; }
-  .lb-admin-rank.bronze { background: rgba(180,120,60,0.15); color: #cd7f32; }
-  .lb-admin-name { flex:1; font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-  .lb-admin-bar-wrap { width: 72px; flex-shrink: 0; }
-  .lb-admin-bar-bg { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
-  .lb-admin-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.7s ease; }
-  .lb-admin-score { font-size: 13px; font-weight: 700; color: var(--accent); min-width: 34px; text-align: right; flex-shrink: 0; }
-  .lb-admin-del {
-    background: none; border: none; cursor: pointer;
-    color: var(--muted); font-size: 13px; padding: 4px 5px;
-    border-radius: 6px; transition: all 0.2s; flex-shrink: 0;
-  }
-  .lb-admin-del:hover { color: var(--wrong); background: rgba(248,113,113,0.1); }
-  .lb-admin-empty { text-align: center; color: var(--muted); padding: 30px 0; font-size: 14px; }
+/* Live feed */
+.a-live-feed{background:var(--off);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:20px}
+.a-live-top{font-size:11px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink3);margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.a-live-count{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:var(--ink)}
+.a-live-chips{display:flex;flex-wrap:wrap;gap:6px;min-height:28px}
+.a-live-chip{padding:4px 10px;border-radius:99px;font-size:12px;font-weight:500;animation:popIn .2s ease both}
+.a-live-chip.c{background:var(--green-bg);border:1px solid var(--green-b);color:#15803d}
+.a-live-chip.w{background:var(--red-bg);border:1px solid var(--red-b);color:#b91c1c}
 
-  /* ─────────────────────────────────────────
-     QUIZ CLOSED FULLSCREEN
-  ───────────────────────────────────────── */
-  #screenClosed {
-    display: none; position: fixed; inset: 0; z-index: 9999;
-    background: var(--bg);
-    background-image:
-      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(248,113,113,0.10), transparent),
-      radial-gradient(ellipse 50% 40% at 10% 100%, rgba(250,204,21,0.06), transparent);
-    flex-direction: column; align-items: center; justify-content: center; padding: 24px;
-  }
-  #screenClosed.visible { display: flex; animation: fadeIn 0.5s ease; }
+/* Leaderboard */
+.a-lb{background:var(--white);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.a-lb-header{padding:18px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.a-lb-header h3{font-size:1.2rem;font-weight:900}
+.a-lb-rows{display:flex;flex-direction:column}
+.a-lb-row{display:flex;align-items:center;gap:12px;padding:13px 22px;border-bottom:1px solid var(--border);transition:background .2s;animation:fadeUp .3s ease both}
+.a-lb-row:last-child{border-bottom:none}
+.a-lb-rank{width:28px;height:28px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;background:var(--off);color:var(--ink2);flex-shrink:0}
+.a-lb-rank.r1{background:#fef9c3;color:#92400e}
+.a-lb-rank.r2{background:#f1f5f9;color:#475569}
+.a-lb-rank.r3{background:#fff7ed;color:#c2410c}
+.a-lb-name{flex:1;font-size:14px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.a-lb-bar-wrap{width:90px;flex-shrink:0}
+.a-lb-bar-bg{height:5px;background:var(--off2);border-radius:99px;overflow:hidden}
+.a-lb-bar-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--blue));border-radius:99px;transition:width .8s ease}
+.a-lb-pts{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:var(--ink);min-width:54px;text-align:right;flex-shrink:0}
+.a-lb-empty{padding:24px;text-align:center;color:var(--ink3);font-size:14px}
 
-  .closed-pulse-wrap { position: relative; margin-bottom: 36px; animation: floatY 3.5s ease-in-out infinite; }
-  @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
-  .closed-pulse-wrap::before, .closed-pulse-wrap::after {
-    content:''; position:absolute; inset:-14px; border-radius:50%;
-    border: 1px solid rgba(248,113,113,0.2); animation: ringOut 2.5s ease-out infinite;
-  }
-  .closed-pulse-wrap::after { animation-delay: 1.25s; }
-  @keyframes ringOut { 0%{transform:scale(0.9);opacity:0.7} 100%{transform:scale(1.4);opacity:0} }
-  .closed-ring {
-    width: 116px; height: 116px; border-radius: 50%;
-    background: rgba(248,113,113,0.07); border: 1.5px solid rgba(248,113,113,0.22);
-    display: flex; align-items: center; justify-content: center; font-size: 50px;
-    box-shadow: 0 0 60px rgba(248,113,113,0.1), 0 0 0 18px rgba(248,113,113,0.035);
-  }
-
-  .closed-pill {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3);
-    color: #fca5a5; font-size: 10.5px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
-    padding: 5px 16px; border-radius: 99px; margin-bottom: 22px;
-  }
-  .closed-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: #f87171; animation: pulse 1.5s infinite; }
-
-  .closed-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2.2rem,6vw,3.8rem); font-weight: 900;
-    line-height: 1.08; letter-spacing: -1px; text-align: center; margin-bottom: 16px;
-  }
-  .closed-title em { font-style: normal; color: #f87171; }
-  .closed-body {
-    font-size: clamp(14px,2vw,16px); color: var(--muted); font-weight: 300;
-    line-height: 1.7; text-align: center; max-width: 460px; margin-bottom: 36px;
-  }
-  .closed-body strong { color: var(--text); font-weight: 500; }
-  .closed-message-box {
-    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
-    padding: 18px 26px; max-width: 460px; width: 100%;
-    text-align: center; margin-bottom: 36px; display: none;
-  }
-  .closed-message-box.show { display: block; }
-  .closed-message-label { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
-  .closed-message-text { font-size: 14.5px; color: var(--text); line-height: 1.6; }
-  .closed-rule { width: 44px; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; margin-bottom: 36px; opacity: 0.35; }
-  .closed-footer-txt { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
-  .closed-footer-txt a { color: var(--accent); text-decoration: none; }
-  .closed-footer-txt a:hover { text-decoration: underline; }
-  .closed-footer-dot { opacity: 0.3; }
-
-  /* ─────────────────────────────────────────
-     PRIVACY MODAL
-  ───────────────────────────────────────── */
-  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
-  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
-  .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; max-width: 580px; width: 100%; max-height: 80vh; overflow-y: auto; box-shadow: 0 32px 80px rgba(0,0,0,0.6); animation: slideUp 0.3s ease; }
-  .modal-box h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
-  .modal-box .modal-date { font-size: 11px; color: var(--muted); margin-bottom: 24px; letter-spacing: 0.5px; }
-  .modal-box h3 { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin: 20px 0 8px; }
-  .modal-box p { font-size: 13.5px; color: var(--muted); line-height: 1.7; margin-bottom: 8px; }
-  .modal-box ul { padding-left: 18px; margin-bottom: 8px; }
-  .modal-box ul li { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
-  .modal-close { margin-top: 28px; width: 100%; padding: 14px; background: var(--accent); color: #0d1117; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
-  .modal-close:hover { background: #86efac; }
-
-  /* ─────────────────────────────────────────
-     EXISTING QUIZ STYLES
-  ───────────────────────────────────────── */
-  .header { text-align: center; margin-bottom: 28px; animation: fadeDown 0.7s ease both; }
-  .header .badge { display: inline-block; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.35); color: var(--accent); font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 99px; margin-bottom: 14px; }
-  .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,5vw,3.2rem); font-weight: 900; line-height: 1.1; letter-spacing: -1px; }
-  .header h1 span { color: var(--accent); }
-  .header p { color: var(--muted); margin-top: 8px; font-size: 15px; font-weight: 300; }
-  .screen { width: 100%; display: flex; flex-direction: column; align-items: center; }
-  .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; max-width: 520px; width: 100%; box-shadow: 0 24px 64px rgba(0,0,0,0.4); animation: slideUp 0.5s ease both; }
-  .start-icon { font-size: 48px; margin-bottom: 16px; text-align: center; }
-  .start-card h2 { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 900; margin-bottom: 10px; text-align: center; }
-  .start-card .sub { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin-bottom: 22px; text-align: center; }
-  .start-meta { display: flex; justify-content: center; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
-  .meta-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 12px; color: var(--muted); }
-  .input-wrap { margin-bottom: 18px; }
-  .input-wrap label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
-  .input-wrap input { width: 100%; padding: 14px 18px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; }
-  .input-wrap input:focus { border-color: var(--accent); }
-  .input-wrap input::placeholder { color: var(--muted); }
-  .input-error { font-size: 12px; color: var(--wrong); margin-top: 6px; display: none; }
-  .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #0d1117; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease; }
-  .btn-primary:hover { background: #86efac; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(74,222,128,0.2); }
-  .config-notice { background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 18px; font-size: 12.5px; color: #fde68a; line-height: 1.55; display: none; }
-  .progress-wrap { width: 100%; max-width: 660px; margin-bottom: 18px; }
-  .progress-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
-  .progress-bar-bg { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
-  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
-  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; max-width: 660px; width: 100%; box-shadow: 0 24px 64px rgba(0,0,0,0.4); animation: slideUp 0.5s ease both; }
-  .question-number { font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
-  .question-text { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem,2.5vw,1.4rem); font-weight: 700; line-height: 1.45; margin-bottom: 28px; }
-  .options { display: flex; flex-direction: column; gap: 12px; }
-  .option { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease; user-select: none; position: relative; overflow: hidden; }
-  .option::before { content:''; position:absolute; inset:0; background:var(--accent); opacity:0; transition:opacity 0.2s; }
-  .option:hover:not(.locked)::before { opacity: 0.04; }
-  .option:hover:not(.locked) { border-color: rgba(74,222,128,0.45); transform: translateY(-1px); }
-  .option-letter { width: 34px; height: 34px; min-width: 34px; border-radius: 10px; background: var(--card); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: var(--muted); transition: all 0.2s; position: relative; z-index: 1; }
-  .option-text { font-size: 14.5px; line-height: 1.5; position: relative; z-index: 1; }
-  .option.correct { border-color: var(--accent); background: rgba(74,222,128,0.08); }
-  .option.correct .option-letter { background: var(--accent); border-color: var(--accent); color: #0d1117; font-weight: 700; }
-  .option.wrong { border-color: var(--wrong); background: rgba(248,113,113,0.07); }
-  .option.wrong .option-letter { background: var(--wrong); border-color: var(--wrong); color: #fff; font-weight: 700; }
-  .option.locked { cursor: default; }
-  .option.locked:hover { transform: none; }
-  .feedback { margin-top: 20px; padding: 16px 20px; border-radius: var(--radius); font-size: 14px; line-height: 1.55; display: none; animation: fadeIn 0.3s ease; }
-  .feedback.show { display: flex; align-items: flex-start; gap: 10px; }
-  .feedback.correct-fb { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); color: #86efac; }
-  .feedback.wrong-fb { background: rgba(248,113,113,0.09); border: 1px solid rgba(248,113,113,0.3); color: #fca5a5; }
-  .feedback-icon { font-size: 18px; line-height: 1; }
-  .btn-next { display: none; margin-top: 24px; width: 100%; padding: 16px; background: var(--accent); color: #0d1117; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
-  .btn-next:hover { background: #86efac; transform: translateY(-1px); }
-  .btn-next.show { display: block; animation: fadeIn 0.4s ease; }
-  .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 920px; width: 100%; }
-  @media (max-width: 720px) { .result-grid { grid-template-columns: 1fr; } }
-  .result-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 36px; box-shadow: 0 24px 64px rgba(0,0,0,0.4); text-align: center; }
-  .score-ring { width: 120px; height: 120px; margin: 0 auto 22px; position: relative; }
-  .score-ring svg { transform: rotate(-90deg); }
-  .ring-bg { fill: none; stroke: var(--border); stroke-width: 8; }
-  .ring-fill { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; stroke-dasharray: 364.4; stroke-dashoffset: 364.4; transition: stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1) 0.3s; }
-  .score-num { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; }
-  .result-card h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; margin-bottom: 10px; }
-  .result-card .res-msg { color: var(--muted); font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
-  .result-stats { display: flex; justify-content: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
-  .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 18px; min-width: 75px; }
-  .stat-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; }
-  .stat-val.g { color: var(--accent); } .stat-val.r { color: var(--wrong); }
-  .stat-label { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: 0.5px; }
-  .lb-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 36px; box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
-  .lb-card h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 900; margin-bottom: 4px; }
-  .lb-sub { color: var(--muted); font-size: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 6px; }
-  .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; animation: pulse 1.5s infinite; }
-  .lb-list { display: flex; flex-direction: column; gap: 9px; }
-  .lb-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); transition: border-color 0.3s, background 0.3s; animation: slideUp 0.4s ease both; }
-  .lb-row.me { border-color: var(--accent); background: rgba(74,222,128,0.06); }
-  .lb-rank { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; background: var(--card); color: var(--muted); }
-  .lb-rank.gold { background: rgba(250,204,21,0.15); color: var(--accent2); }
-  .lb-rank.silver { background: rgba(148,163,184,0.15); color: #94a3b8; }
-  .lb-rank.bronze { background: rgba(180,120,60,0.15); color: #cd7f32; }
-  .lb-name { flex: 1; font-size: 13.5px; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .lb-you { font-size: 10px; color: var(--accent); font-weight: 600; margin-left: 4px; }
-  .lb-bar-wrap { width: 80px; flex-shrink: 0; }
-  .lb-bar-bg { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
-  .lb-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.8s ease; }
-  .lb-val { font-size: 13px; font-weight: 700; color: var(--accent); min-width: 34px; text-align: right; flex-shrink: 0; }
-  .lb-empty { text-align: center; color: var(--muted); font-size: 14px; padding: 28px 0; }
-  .lb-loading { display: flex; justify-content: center; gap: 6px; padding: 28px 0; }
-  .lb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: bounce 1s infinite; }
-  .lb-dot:nth-child(2) { animation-delay: 0.2s; }
-  .lb-dot:nth-child(3) { animation-delay: 0.4s; }
-  .consent-wrap { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px; padding: 14px 16px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: border-color 0.2s; }
-  .consent-wrap:hover { border-color: rgba(74,222,128,0.4); }
-  .consent-wrap input[type=checkbox] { margin-top: 2px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
-  .consent-wrap label { font-size: 13px; color: var(--muted); line-height: 1.55; cursor: pointer; }
-  .consent-wrap label a { color: var(--accent); text-decoration: underline; }
-  .consent-error { font-size: 12px; color: var(--wrong); margin-top: -12px; margin-bottom: 14px; display: none; }
-  .site-footer { margin-top: 32px; text-align: center; font-size: 12px; color: var(--muted); padding-bottom: 16px; }
-  .site-footer a { color: var(--accent); text-decoration: none; }
-  .site-footer a:hover { text-decoration: underline; }
-
-  /* Loading splash */
-  #screenLoading { position: fixed; inset: 0; z-index: 10000; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; transition: opacity 0.4s ease; }
-  #screenLoading.hidden { opacity: 0; pointer-events: none; }
-  .loading-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; }
-  .loading-logo span { color: var(--accent); }
-  .loading-dots { display: flex; gap: 6px; }
-  .loading-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: bounce 1s infinite; }
-  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
-  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
-
-  @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
-  @keyframes bounce   { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} }
-  @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
-  @keyframes slideUp  { from{opacity:0;transform:translateY(20px)}  to{opacity:1;transform:translateY(0)} }
-  @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
+@media(max-width:640px){.a-body{padding:16px}.a-topbar{padding:10px 16px}.s-card{padding:28px 20px}.a-q-card{padding:20px}}
 </style>
 </head>
 <body>
 
-<!-- LOADING SPLASH -->
-<div id="screenLoading">
-  <div class="loading-logo">Slim <span>Eten</span></div>
-  <div class="loading-dots">
-    <div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div>
+<!-- SPLASH -->
+<div id="splash">
+  <div class="splash-logo">Slim <span>Eten</span></div>
+  <div class="splash-dots">
+    <div class="splash-dot"></div><div class="splash-dot"></div><div class="splash-dot"></div>
   </div>
 </div>
 
-<!-- TOP BAR -->
-<div id="topBar">
-  <button id="btnAdminLogin" onclick="openLoginModal()">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    Admin
-  </button>
-  <div id="adminChip">
-    <img id="adminAvatar" src="" alt="" style="display:none" />
-    <span class="chip-name" id="adminName">Admin</span>
-    <button id="btnLogout" onclick="doLogout()">↩</button>
-  </div>
-</div>
+<!-- DOCENT LOGIN KNOP (rechtsboven) -->
+<button id="btnAdminTopLogin" onclick="showAdminLogin()">
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  Docent
+</button>
 
-<!-- ADMIN PANEL -->
-<div id="adminPanel">
-  <div class="ap-inner">
-    <div class="ap-label">⚙️ Beheer paneel</div>
-    <div class="ap-row">
-
-      <!-- Status toggle -->
-      <div class="ap-toggle-card open" id="apToggleCard">
-        <div class="ap-toggle-info">
-          <div class="ap-toggle-sublabel">Quiz status</div>
-          <div class="ap-status-row state-open" id="apStatusRow">
-            <span class="ap-status-dot"></span>
-            <span class="ap-status-text" id="apStatusText">Open</span>
-          </div>
-        </div>
-        <label class="toggle-pill">
-          <input type="checkbox" id="quizOpenToggle" checked onchange="onStatusToggle(this)">
-          <span class="toggle-track"></span>
-        </label>
-      </div>
-
-      <!-- Message input -->
-      <div class="ap-msg-card">
-        <div class="ap-msg-sublabel">📢 Bericht voor leerlingen</div>
-        <div class="ap-msg-row">
-          <input type="text" class="ap-msg-input" id="apMsgInput"
-            placeholder="Bijv. 'We gaan om 14:00 weer live!'" maxlength="120" />
-          <button class="ap-save-btn" id="apSaveBtn" onclick="saveAdminMessage()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-            Opslaan
-          </button>
-        </div>
-        <div class="ap-saved-msg" id="apSavedMsg"></div>
-      </div>
-
-      <!-- LB button -->
-      <button class="ap-lb-btn" onclick="openLbAdminModal()">
-        🏆 Leaderboard
-      </button>
-
-    </div>
-  </div>
-</div>
-
-<!-- QUIZ GESLOTEN (fullscreen) -->
-<div id="screenClosed">
-  <div class="closed-pill"><span class="closed-pill-dot"></span>Niet beschikbaar</div>
-  <div class="closed-pulse-wrap">
-    <div class="closed-ring">🔒</div>
-  </div>
-  <h1 class="closed-title">De quiz is<br><em>gesloten</em></h1>
-  <p class="closed-body">Deze quiz is momenteel niet beschikbaar.<br><strong>Kom later terug</strong> om mee te doen.</p>
-  <div class="closed-message-box" id="closedMsgBox">
-    <div class="closed-message-label">📢 Bericht van de beheerder</div>
-    <div class="closed-message-text" id="closedMsgText"></div>
-  </div>
-  <div class="closed-rule"></div>
-  <div class="closed-footer-txt">
-    <a href="#" onclick="event.preventDefault();openPrivacy()">🔒 Privacybeleid</a>
-    <span class="closed-footer-dot">·</span>
-    <span>Slim Eten Quiz</span>
-  </div>
-</div>
-
-<!-- LOGIN MODAL -->
-<div class="overlay" id="loginOverlay">
-  <div class="login-box">
-    <div class="login-icon">🔑</div>
-    <h2>Admin inloggen</h2>
-    <p class="login-sub">Alleen voor beheerders. Log in om de quizstatus te beheren en het leaderboard te bekijken.</p>
-
+<!-- DOCENT LOGIN OVERLAY -->
+<div id="adminLoginOverlay">
+  <div class="admin-login-box">
+    <div class="admin-login-icon">🎓</div>
+    <h2>Docent inloggen</h2>
+    <p class="sub">Log in om de quiz te starten en te besturen vanuit het klaslokaal.</p>
     <button class="btn-google" onclick="loginWithGoogle()">
-      <svg width="18" height="18" viewBox="0 0 24 24">
+      <svg width="17" height="17" viewBox="0 0 24 24">
         <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
         <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
         <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
@@ -549,644 +282,625 @@
       </svg>
       Inloggen met Google
     </button>
-
-    <div class="divider-row"><span>of met e-mail</span></div>
-
+    <div class="divider">of met e-mail</div>
     <div class="login-form">
-      <input type="email" id="loginEmail" placeholder="E-mailadres" autocomplete="email" />
-      <input type="password" id="loginPassword" placeholder="Wachtwoord"
-        autocomplete="current-password" onkeydown="if(event.key==='Enter')loginWithEmail()" />
-      <div class="login-error" id="loginError"></div>
-      <button class="btn-email-login" onclick="loginWithEmail()">Inloggen →</button>
+      <input type="email" class="field-input" id="loginEmail" placeholder="E-mailadres" autocomplete="email"/>
+      <input type="password" class="field-input" id="loginPassword" placeholder="Wachtwoord"
+        onkeydown="if(event.key==='Enter')loginWithEmail()"/>
+      <div class="login-err" id="loginErr"></div>
+      <button class="btn btn-primary btn-full" onclick="loginWithEmail()">Inloggen →</button>
     </div>
-
-    <button class="btn-cancel-login" onclick="closeLoginModal()">Annuleren</button>
+    <button onclick="hideAdminLogin()" style="margin-top:16px;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink3)">Annuleren</button>
   </div>
 </div>
 
-<!-- LEADERBOARD MODAL (admin) -->
-<div id="lbAdminOverlay">
-  <div class="lb-admin-box">
-    <div class="lb-admin-header">
-      <h2>🏆 Leaderboard</h2>
-      <button class="lb-close-btn" onclick="closeLbAdminModal()">✕</button>
-    </div>
-    <div class="lb-admin-sub"><span class="live-dot"></span> Realtime — alle deelnemers</div>
-    <div class="lb-admin-list" id="lbAdminList">
-      <div class="lb-loading"><div class="lb-dot"></div><div class="lb-dot"></div><div class="lb-dot"></div></div>
-    </div>
-  </div>
-</div>
-
-<!-- PRIVACY MODAL -->
-<div class="modal-overlay" id="privacyModal">
-  <div class="modal-box">
-    <h2>🔒 Privacybeleid</h2>
-    <div class="modal-date">Laatst bijgewerkt: juni 2025</div>
-    <h3>Wie zijn wij?</h3>
-    <p>Deze quiz ("Slim Eten — Voedingsquiz") is een educatieve webapplicatie over voeding en gezond eten. De quiz wordt aangeboden zonder commercieel doel.</p>
-    <h3>Welke gegevens verzamelen wij?</h3>
-    <p>Wij verzamelen uitsluitend de volgende gegevens wanneer je de quiz invult:</p>
-    <ul>
-      <li>Jouw gekozen <strong>nickname</strong> (een zelfgekozen schuilnaam, geen echte naam vereist)</li>
-      <li>Jouw <strong>quizscore</strong> (aantal goed beantwoorde vragen)</li>
-      <li>Een <strong>tijdstempel</strong> (datum en tijd van deelname)</li>
-    </ul>
-    <p>Wij verzamelen <strong>geen</strong> persoonlijk identificeerbare informatie zoals echte namen, e-mailadressen, IP-adressen of locatiegegevens.</p>
-    <h3>Waarom verzamelen wij deze gegevens?</h3>
-    <p>De gegevens worden uitsluitend gebruikt om een <strong>live ranglijst (leaderboard)</strong> te tonen aan deelnemers van de quiz. Dit is het enige doel.</p>
-    <h3>Grondslag (AVG/GDPR)</h3>
-    <p>De verwerking is gebaseerd op jouw expliciete <strong>toestemming</strong> (Art. 6 lid 1 sub a AVG), die je geeft door het vakje op het startscherm aan te vinken.</p>
-    <h3>Waar worden de gegevens opgeslagen?</h3>
-    <p>Gegevens worden opgeslagen in <strong>Firebase Realtime Database</strong> (Google LLC), gesitueerd in de EU (europe-west1 — België). Google is gecertificeerd onder het EU-US Data Privacy Framework.</p>
-    <h3>Hoe lang bewaren wij de gegevens?</h3>
-    <p>Scores worden bewaard zolang de quiz actief is. Je kunt te allen tijde verzoeken om verwijdering van jouw nickname en score.</p>
-    <h3>Jouw rechten</h3>
-    <p>Op basis van de AVG heb je het recht op inzage, correctie en verwijdering van jouw gegevens via de beheerder van deze quiz.</p>
-    <h3>Cookies en tracking</h3>
-    <p>Deze quiz gebruikt <strong>geen cookies</strong> en maakt <strong>geen gebruik van tracking of advertenties</strong>.</p>
-    <h3>Kinderen en jongeren</h3>
-    <p>Deze quiz is speciaal ontworpen voor leerlingen vanaf 14 jaar als onderdeel van een educatieve activiteit over voeding en gezond eten.</p>
-    <p>Er worden <strong>geen persoonsgegevens</strong> verzameld. Deelnemers kiezen zelf een nickname. Omdat er geen identificeerbare persoonsgegevens van minderjarigen worden verwerkt, is afzonderlijke ouderlijke toestemming niet vereist conform de AVG.</p>
-    <button class="modal-close" onclick="closePrivacy()">Sluiten ✕</button>
-  </div>
-</div>
-
-<!-- START SCHERM -->
-<div id="screen-start" class="screen">
-  <div class="header">
-    <div class="badge">🥦 Voedingsquiz</div>
-    <h1>Slim <span>Eten</span></h1>
+<!-- ══════════════════════════════════════════
+     LEERLING VIEW
+══════════════════════════════════════════ -->
+<div id="studentView">
+  <div class="s-header">
+    <div class="quiz-badge">🥦 Voedingsquiz</div>
+    <h1>Slim <em>Eten</em></h1>
     <p>Test jouw kennis over suiker, etiketten &amp; gezonde keuzes</p>
   </div>
-  <div class="start-card">
-    <div class="start-icon">🧠</div>
-    <h2>Ben jij een voedingsexpert?</h2>
-    <p class="sub">10 vragen over suikers, supermarkttrucjes en etiketten. Doe mee en zie hoe jij scoort in de live top&nbsp;10!</p>
-    <div class="start-meta">
-      <div class="meta-chip">📋 10 vragen</div>
-      <div class="meta-chip">⚡ Meerkeuze</div>
-      <div class="meta-chip">🏆 Live leaderboard</div>
+
+  <!-- S1: Naam invoeren -->
+  <div class="s-card" id="sJoin">
+    <div style="font-size:48px;text-align:center;margin-bottom:18px">🧠</div>
+    <h2 style="font-size:1.5rem;font-weight:900;text-align:center;margin-bottom:8px">Doe mee!</h2>
+    <p style="color:var(--ink3);text-align:center;font-size:14px;line-height:1.6;margin-bottom:28px">
+      Kies een nickname en wacht tot de docent de quiz start.
+    </p>
+    <div style="margin-bottom:16px">
+      <label class="field-label">Jouw nickname</label>
+      <input type="text" class="field-input" id="nicknameInput"
+        placeholder="Kies een naam..." maxlength="20" autocomplete="off"
+        onkeydown="if(event.key==='Enter')joinQuiz()"/>
+      <div class="field-error" id="nicknameError">Kies een naam van minimaal 2 tekens</div>
     </div>
-    <div class="config-notice" id="configNotice">
-      ⚠️ <strong>Firebase nog niet gekoppeld.</strong> Scores worden nu lokaal bijgehouden als demo.
-    </div>
-    <div class="input-wrap">
-      <label>Jouw nickname</label>
-      <input type="text" id="usernameInput" placeholder="Kies een nickname..." maxlength="20" autocomplete="off" />
-      <div class="input-error" id="usernameError">Kies een nickname om te starten (minimaal 2 tekens)</div>
-    </div>
-    <div class="consent-wrap" onclick="toggleConsent()">
-      <input type="checkbox" id="consentCheck" onclick="event.stopPropagation();checkConsent()" />
-      <label for="consentCheck">Ik ga akkoord dat mijn nickname en score worden opgeslagen in een publiek leaderboard. Geen persoonsgegevens vereist. Lees het <a href="#" onclick="event.preventDefault();event.stopPropagation();openPrivacy()">privacybeleid</a>.</label>
-    </div>
-    <div class="consent-error" id="consentError">Vink het vakje aan om door te gaan</div>
-    <button class="btn-primary" onclick="handleStart()">Start de quiz →</button>
+    <button class="btn btn-primary btn-full btn-lg" onclick="joinQuiz()">Deelnemen →</button>
   </div>
-  <div class="site-footer">
-    <a href="#" onclick="event.preventDefault();openPrivacy()">🔒 Privacybeleid</a> &nbsp;·&nbsp; Slim Eten Quiz &nbsp;·&nbsp; Gegevens opgeslagen in EU (Firebase)
+
+  <!-- S2: Wachten op start -->
+  <div class="s-card hidden" id="sWaiting">
+    <div class="wait-icon">⏳</div>
+    <h2 class="wait-title">Wachten op de docent</h2>
+    <p class="wait-sub">Je naam staat geregistreerd. De quiz begint zodra de docent op <strong>Start</strong> klikt op het bord.</p>
+    <div class="wait-name-chip">
+      <span class="name-label">Jij speelt als</span>
+      <strong id="sWaitName">—</strong>
+    </div>
+    <div class="pulse-ring"><span style="font-size:22px">🎓</span></div>
+    <p style="color:var(--ink3);font-size:13px;text-align:center">Wacht op het startsignaal…</p>
+  </div>
+
+  <!-- S3: Vraag beantwoorden -->
+  <div class="s-card hidden" id="sQuestion" style="max-width:580px">
+    <div class="sq-meta">
+      <span class="sq-qnum" id="sqQNum">Vraag 1 van 10</span>
+      <span class="sq-timer" id="sqTimer">20</span>
+    </div>
+    <div class="sq-progress">
+      <div class="sq-progress-fill" id="sqProgressFill" style="width:100%"></div>
+    </div>
+    <div class="sq-question" id="sqQuestion"></div>
+    <div class="sq-options" id="sqOptions"></div>
+    <div class="sq-answered-banner" id="sqBanner">
+      <span class="ban-icon" id="sqBannerIcon"></span>
+      <div>
+        <div id="sqBannerText" style="font-size:13.5px;line-height:1.5"></div>
+        <div class="sq-pts" id="sqPtsEarned"></div>
+      </div>
+    </div>
+    <div class="sq-wait-next" id="sqWaitNext">
+      <span>⏳</span> Wachten op volgende vraag van de docent…
+    </div>
+  </div>
+
+  <!-- S4: Eindresultaat -->
+  <div class="s-card hidden" id="sResult" style="text-align:center">
+    <div style="font-size:48px;margin-bottom:14px">🏁</div>
+    <h2 style="font-size:1.5rem;margin-bottom:6px" id="sResTitle">Quiz afgelopen!</h2>
+    <p style="color:var(--ink3);font-size:14px;margin-bottom:22px" id="sResMsg"></p>
+    <div class="res-ring-wrap">
+      <svg width="110" height="110" viewBox="0 0 110 110">
+        <circle class="res-ring-bg" cx="55" cy="55" r="50"/>
+        <circle class="res-ring-fill" id="resRingFill" cx="55" cy="55" r="50"/>
+      </svg>
+      <div class="res-score-num" id="resPtsNum">0pt</div>
+    </div>
+    <div class="res-stats">
+      <div class="res-stat"><div class="res-stat-val g" id="resCorrect">0</div><div class="res-stat-lbl">✓ Goed</div></div>
+      <div class="res-stat"><div class="res-stat-val r" id="resWrong">0</div><div class="res-stat-lbl">✗ Fout</div></div>
+      <div class="res-stat"><div class="res-stat-val b" id="resPts">0</div><div class="res-stat-lbl">Punten</div></div>
+    </div>
+    <p style="font-size:13px;color:var(--ink3)">De eindstand wordt getoond op het bord van de docent.</p>
   </div>
 </div>
 
-<!-- QUIZ SCHERM -->
-<div id="screen-quiz" class="screen" style="display:none">
-  <div class="header" style="margin-bottom:14px">
-    <div class="badge">🥦 Voedingsquiz</div>
-    <h1>Slim <span>Eten</span></h1>
+<!-- ══════════════════════════════════════════
+     DOCENT VIEW (bord)
+══════════════════════════════════════════ -->
+<div id="adminView" class="hidden">
+
+  <!-- Topbar -->
+  <div class="a-topbar">
+    <div class="a-topbar-left">
+      <div class="a-logo">Slim <em>Eten</em> <span style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;color:var(--ink3);margin-left:4px">BORD</span></div>
+      <span class="pill pill-indigo dot-pulse" id="aStatusPill"><span class="dot"></span> Lobby</span>
+    </div>
+    <div class="a-topbar-right">
+      <div class="a-user-chip">
+        <img id="aUserAvatar" src="" alt="" style="display:none"/>
+        <span id="aUserName">Docent</span>
+      </div>
+      <button class="btn btn-outline" onclick="doLogout()" style="padding:7px 14px;font-size:12px">Uitloggen</button>
+    </div>
   </div>
-  <div class="progress-wrap">
-    <div class="progress-meta">
-      <span id="qLabel">Vraag 1 van 10</span>
-      <span id="scoreLabel">Score: 0</span>
+
+  <div class="a-body">
+
+    <!-- A1: Lobby -->
+    <div id="aLobby" class="a-screen">
+      <div class="a-lobby-top">
+        <div>
+          <div class="a-lobby-title">Lobby 🎓</div>
+          <div class="a-lobby-sub">Wacht tot alle leerlingen zijn ingelogd, start dan de quiz.</div>
+        </div>
+        <button class="btn btn-green btn-lg" onclick="adminStartQuiz()">▶ Start quiz</button>
+      </div>
+      <div class="a-stats-row">
+        <div class="a-stat-card"><div class="a-stat-val" id="aStatPlayers">0</div><div class="a-stat-lbl">Deelnemers</div></div>
+        <div class="a-stat-card"><div class="a-stat-val">10</div><div class="a-stat-lbl">Vragen</div></div>
+        <div class="a-stat-card"><div class="a-stat-val">20s</div><div class="a-stat-lbl">Per vraag</div></div>
+        <div class="a-stat-card"><div class="a-stat-val">1000</div><div class="a-stat-lbl">Max punten</div></div>
+      </div>
+      <div class="a-section-label">Ingeschreven deelnemers</div>
+      <div class="a-grid" id="aPlayersGrid">
+        <div class="a-p-empty"><span>⏳</span> Wachten op leerlingen…</div>
+      </div>
+      <button class="btn btn-outline btn-red" style="font-size:12px;padding:8px 16px" onclick="adminResetAll()">↺ Reset alles</button>
     </div>
-    <div class="progress-bar-bg">
-      <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+
+    <!-- A2: Vraag besturen -->
+    <div id="aQuestion" class="a-screen hidden">
+      <div class="a-q-header">
+        <div class="a-q-title" id="aQTitle">Vraag 1 / 10</div>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+          <span class="pill pill-green" id="aAnsweredPill"><span class="dot dot-pulse"></span> 0 geantwoord</span>
+          <button class="btn btn-primary btn-lg" id="aBtnNext" onclick="adminNextQuestion()">Volgende vraag →</button>
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div class="a-timer-row">
+        <div class="a-timer-num" id="aTimerNum">20</div>
+        <div class="a-timer-bar"><div class="a-timer-fill" id="aTimerFill" style="width:100%"></div></div>
+      </div>
+
+      <!-- Vraagkaart -->
+      <div class="a-q-card">
+        <div class="a-q-text" id="aQText"></div>
+        <div class="a-opts-grid" id="aOptsGrid"></div>
+      </div>
+
+      <!-- Live antwoorden -->
+      <div class="a-live-feed">
+        <div class="a-live-top">
+          <span>Live antwoorden</span>
+          <span class="a-live-count" id="aLiveCount">0</span>
+        </div>
+        <div class="a-live-chips" id="aLiveChips"></div>
+      </div>
+
+      <!-- Tussenstand -->
+      <div class="a-lb" id="aMiniLb">
+        <div class="a-lb-header">
+          <h3>Tussenstand</h3>
+          <span class="pill pill-amber">na vraag <span id="aAfterQ">0</span></span>
+        </div>
+        <div class="a-lb-rows" id="aMiniLbRows"><div class="a-lb-empty">Nog geen scores</div></div>
+      </div>
     </div>
-  </div>
-  <div class="quiz-card">
-    <div class="question-number" id="qNum">Vraag 1</div>
-    <div class="question-text" id="qText"></div>
-    <div class="options" id="options"></div>
-    <div class="feedback" id="feedback">
-      <span class="feedback-icon" id="fbIcon"></span>
-      <span id="fbText"></span>
+
+    <!-- A3: Eindstand -->
+    <div id="aFinal" class="a-screen hidden">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:24px">
+        <div>
+          <h2 style="font-size:2rem;font-weight:900;margin-bottom:4px">🏆 Eindstand</h2>
+          <p style="color:var(--ink3);font-size:14px">Quiz afgerond — definitieve scores</p>
+        </div>
+        <button class="btn btn-outline" onclick="adminResetAll()">↺ Nieuwe quiz starten</button>
+      </div>
+      <div class="a-lb">
+        <div class="a-lb-rows" id="aFinalRows"><div class="a-lb-empty">Laden…</div></div>
+      </div>
     </div>
-    <button class="btn-next" id="btnNext" onclick="nextQuestion()">Volgende vraag →</button>
+
   </div>
 </div>
 
-<!-- RESULTAAT SCHERM -->
-<div id="screen-result" class="screen" style="display:none">
-  <div class="header" style="margin-bottom:14px">
-    <div class="badge">🥦 Voedingsquiz</div>
-    <h1>Slim <span>Eten</span></h1>
-  </div>
-  <div class="result-grid">
-    <div class="result-card">
-      <div class="score-ring">
-        <svg width="120" height="120" viewBox="0 0 130 130">
-          <circle class="ring-bg" cx="65" cy="65" r="58"/>
-          <circle class="ring-fill" id="ringFill" cx="65" cy="65" r="58"/>
-        </svg>
-        <div class="score-num" id="scoreNum">0/10</div>
-      </div>
-      <h2 id="resultTitle"></h2>
-      <p class="res-msg" id="resultMsg"></p>
-      <div class="result-stats">
-        <div class="stat"><div class="stat-val g" id="statCorrect">0</div><div class="stat-label">✓ GOED</div></div>
-        <div class="stat"><div class="stat-val r" id="statWrong">0</div><div class="stat-label">✗ FOUT</div></div>
-        <div class="stat"><div class="stat-val" id="statPct" style="color:var(--accent2)">0%</div><div class="stat-label">SCORE</div></div>
-      </div>
-      <button class="btn-primary" style="width:auto;padding:14px 28px" onclick="restartQuiz()">↺ Opnieuw spelen</button>
-    </div>
-    <div class="lb-card">
-      <h3>🏆 Top 10</h3>
-      <div class="lb-sub"><span class="live-dot"></span> Realtime ranglijst</div>
-      <div class="lb-list" id="lbList">
-        <div class="lb-loading"><div class="lb-dot"></div><div class="lb-dot"></div><div class="lb-dot"></div></div>
-      </div>
-    </div>
-  </div>
-</div>
-<div class="site-footer" id="result-footer" style="display:none">
-  <a href="#" onclick="event.preventDefault();openPrivacy()">🔒 Privacybeleid</a> &nbsp;·&nbsp; Slim Eten Quiz
-</div>
-
-<!-- ══════════════════════════════════════════════
-     FIREBASE  (Auth + Realtime Database)
-══════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════
+     FIREBASE
+══════════════════════════════════════════ -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {
-  getDatabase, ref, push, set, remove, get,
-  onValue, query, orderByChild, limitToLast
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-import {
-  getAuth, GoogleAuthProvider, signInWithPopup,
-  signInWithEmailAndPassword, signOut, onAuthStateChanged
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getDatabase, ref, set, get, push, update, remove, onValue, serverTimestamp }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup,
+  signInWithEmailAndPassword, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-/* ── Config ───────────────────────────────── */
+/* ── Config ── */
 const FB = {
-  apiKey:            "AIzaSyAEe_DHNTkaiv5XC2auAuPvSxFBIQlw9_I",
-  authDomain:        "voedingsquiz.firebaseapp.com",
-  databaseURL:       "https://voedingsquiz-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId:         "voedingsquiz",
-  storageBucket:     "voedingsquiz.firebasestorage.app",
-  messagingSenderId: "469175449514",
-  appId:             "1:469175449514:web:620f6b6a7cb28c13041dd3"
+  apiKey:"AIzaSyAEe_DHNTkaiv5XC2auAuPvSxFBIQlw9_I",
+  authDomain:"voedingsquiz.firebaseapp.com",
+  databaseURL:"https://voedingsquiz-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"voedingsquiz",
+  storageBucket:"voedingsquiz.firebasestorage.app",
+  messagingSenderId:"469175449514",
+  appId:"1:469175449514:web:620f6b6a7cb28c13041dd3"
 };
 
-let db = null, auth = null;
-window._fbOK = false;
+const QUESTIONS = [
+  {q:"Hoeveel suikerklontjes zitten er gemiddeld in een pakje appelsap van 200ml?",opts:["Ongeveer 2 klontjes","Ongeveer 5 klontjes (21 gram suiker)","Ongeveer 8 klontjes","Er zit geen suiker in"],correct:1,explain:"Een pakje appelsap van 200ml bevat ~21 gram suiker — zo'n 5 suikerklontjes!"},
+  {q:"Welk vak in de 'Schijf van Vijf' is het grootst?",opts:["Zuivel, noten en vis","Groente en fruit","Smeer- en bereidingsvetten","Brood, graanproducten en aardappelen"],correct:1,explain:"Groente en fruit vormen het grootste vak. Eet dagelijks min. 250g groente en 2 stuks fruit."},
+  {q:"Wat betekent 'zonder toegevoegde suikers' op een etiket?",opts:["Het product bevat helemaal geen suiker","Er is geen extra suiker door de fabrikant toegevoegd","Het product is altijd gezonder","Het bevat alleen zoetstoffen"],correct:1,explain:"De fabrikant heeft geen suiker toegevoegd — maar van nature aanwezige suikers kunnen er nog in zitten!"},
+  {q:"Waarom is een hele appel gezonder dan een glas appelsap?",opts:["Meer vezels vertragen de suikeropname","Appelsap bevat giftige stoffen","Een appel heeft minder calorieën","Er is geen verschil"],correct:0,explain:"Vezels in de appel vertragen de suikeropname — zo geen snelle piek én dip."},
+  {q:"Welke supermarktstrategie verkoopt ongezonde producten aan kinderen?",opts:["Producten hoog in het rek zetten","Kleurrijke verpakkingen op ooghoogte van kinderen","Alleen groente bij de kassa leggen","Producten zonder plaatjes verkopen"],correct:1,explain:"Supermarkten plaatsen ongezonde producten bewust op ooghoogte van kinderen."},
+  {q:"Wat is een 'verborgen suiker'?",opts:["Suiker die je microscopisch moet zoeken","Suiker in producten die je niet als zoet beschouwt (ketchup, pastasaus…)","Suiker die alleen in fabrieken zichtbaar is","Suiker die na koken ontstaat"],correct:1,explain:"Verborgen suikers zitten in ketchup, pastasaus, soep en ontbijtgranen."},
+  {q:"Wat is de beste dorstlesser?",opts:["Light-frisdrank","Water en thee zonder suiker","Isotone sportdranken","Vruchtensap met water"],correct:1,explain:"Water en thee zonder suiker — geen calorieën of toevoegingen."},
+  {q:"Welke naam op een etiket is GEEN suiker?",opts:["Dextrose","Natrium (dit is zout)","Maltodextrine","Agavesiroop"],correct:1,explain:"Natrium is zout! Dextrose, maltodextrine en agavesiroop zijn vormen van suiker."},
+  {q:"Wat doet te veel suiker met je concentratie?",opts:["Je krijgt een energie-dip na een korte piek","Je kunt de hele dag beter opletten","Suiker heeft geen invloed","Je wordt rustiger"],correct:0,explain:"Na een suikerpiek daalt de bloedsuiker snel — vermoeidheid en slechte concentratie."},
+  {q:"Waarom staat groente vaak aan het begin van de supermarktroute?",opts:["Zodat het niet geplet wordt","Zodat je een 'gezond' gevoel krijgt en later makkelijker ongezond koopt","Groente is het zwaarst","Ventilatie bij de ingang"],correct:1,explain:"Met gezond in je mandje voel je je al 'goed bezig' — dan koop je daarna sneller iets ongezonds."}
+];
 
+const TIME_PER_Q = 20;
+const MAX_PTS    = 1000;
+const COLORS     = ['#6366f1','#f59e0b','#3b82f6','#ec4899','#14b8a6','#f97316','#8b5cf6','#06b6d4','#84cc16','#e11d48'];
+const LETTERS    = ['A','B','C','D'];
+
+let db = null, auth = null;
 try {
   const app = initializeApp(FB);
   db   = getDatabase(app);
   auth = getAuth(app);
-  window._fbOK = true;
-} catch(e) {
-  console.warn("Firebase init mislukt:", e);
-  document.getElementById('configNotice').style.display = 'block';
-}
+} catch(e){ console.error(e); }
 
-/* ── Helpers ──────────────────────────────── */
-const $  = id => document.getElementById(id);
-const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const $   = id => document.getElementById(id);
+const esc = s  => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
 
-/* ── Auth state ───────────────────────────── */
-if (auth) {
+/* ── state ── */
+let _myKey=null, _myName=null, _isAdmin=false;
+let _sTimer=null, _aTimer=null;
+let _answered=false, _currentQ=-1, _qStartTime=null;
+let _myCorrect=0, _myWrong=0, _myPoints=0;
+
+/* ── splash ── */
+function hideSplash(){ const s=$('splash'); s.classList.add('fade'); setTimeout(()=>s.style.display='none',450); }
+
+/* ══ AUTH ══ */
+if(auth){
   onAuthStateChanged(auth, async user => {
-    if (!user) { window._adminUser = null; onAdminLoggedOut(); return; }
-
-    // ── Whitelist check ──────────────────────────────────────────────────
-    // Controleer of het e-mailadres van de ingelogde gebruiker voorkomt in
-    // /admins/<email_encoded> in de database.
-    // Voeg admins toe in Firebase Realtime Database:
-    //   admins: { "jouwnaam@gmail,com": true }
-    // (vervang '.' door ',' in de key, want Firebase staat geen '.' toe in keys)
-    // ─────────────────────────────────────────────────────────────────────
-    let isAdmin = false;
-    if (db && user.email) {
-      try {
-        const emailKey = user.email.replace(/\./g, ',');   // Firebase staat geen '.' toe in keys
-        const snap = await get(ref(db, 'admins/' + emailKey));
-        isAdmin = snap.exists() && snap.val() === true;
-      } catch(e) { isAdmin = false; }
+    if(!user){ hideSplash(); return; }
+    let isAdmin=false;
+    if(db && user.email){
+      try{
+        const k=user.email.replace(/\./g,',');
+        const snap=await get(ref(db,'admins/'+k));
+        isAdmin=snap.exists()&&snap.val()===true;
+      }catch(e){}
     }
-
-    if (!isAdmin) {
-      // Ingelogd maar geen admin → meteen uitloggen, foutmelding tonen
+    if(!isAdmin){
       await signOut(auth);
-      $('loginError').textContent = 'Geen toegang. Dit account is niet als admin ingesteld.';
-      $('loginOverlay').classList.add('open');
+      $('loginErr').textContent='Geen toegang — dit account is niet als docent ingesteld.';
+      showAdminLogin();
+      hideSplash();
       return;
     }
-
-    window._adminUser = user;
-    onAdminLoggedIn(user);
+    _isAdmin=true;
+    showAdminView(user);
+    hideSplash();
   });
-}
+} else { hideSplash(); }
 
-function onAdminLoggedIn(user) {
-  $('btnAdminLogin').classList.add('hidden');
-  const chip = $('adminChip'); chip.classList.add('show');
-  if (user.photoURL) { const av = $('adminAvatar'); av.src = user.photoURL; av.style.display='block'; }
-  $('adminName').textContent = user.displayName || user.email || 'Admin';
-  $('btnLogout').classList.add('show');
-  $('adminPanel').classList.add('show');
-  // Sluit login modal
-  $('loginOverlay').classList.remove('open');
-  // Admin ziet nooit het gesloten scherm
-  $('screenClosed').classList.remove('visible');
-  // Laad huidige status in panel
-  syncPanelWithStatus();
-  // Start leaderboard listener
-  startAdminLbListener();
-}
-
-function onAdminLoggedOut() {
-  $('btnAdminLogin').classList.remove('hidden');
-  $('adminChip').classList.remove('show');
-  $('btnLogout').classList.remove('show');
-  $('adminPanel').classList.remove('show');
-  // Hercontroleer quiz status zodat gesloten scherm evt. zichtbaar wordt
-  if (window._lastStatus) applyStatus(window._lastStatus);
-}
-
-/* ── Google login ─────────────────────────── */
-window.loginWithGoogle = async () => {
-  if (!auth) return;
-  $('loginError').textContent = '';
-  try {
-    await signInWithPopup(auth, new GoogleAuthProvider());
-  } catch(e) {
-    $('loginError').textContent = 'Inloggen mislukt: ' + (e.message || e.code);
+window.loginWithGoogle=async()=>{
+  $('loginErr').textContent='';
+  try{ await signInWithPopup(auth,new GoogleAuthProvider()); }
+  catch(e){ $('loginErr').textContent='Inloggen mislukt.'; }
+};
+window.loginWithEmail=async()=>{
+  const email=$('loginEmail').value.trim(), pass=$('loginPassword').value;
+  $('loginErr').textContent='';
+  if(!email||!pass){$('loginErr').textContent='Vul beide velden in.';return;}
+  try{ await signInWithEmailAndPassword(auth,email,pass); }
+  catch(e){
+    const m={'auth/invalid-credential':'Onjuist e-mailadres of wachtwoord.','auth/too-many-requests':'Te veel pogingen.'};
+    $('loginErr').textContent=m[e.code]||'Inloggen mislukt.';
   }
 };
-
-/* ── E-mail login ─────────────────────────── */
-window.loginWithEmail = async () => {
-  if (!auth) return;
-  const email = $('loginEmail').value.trim();
-  const pass  = $('loginPassword').value;
-  $('loginError').textContent = '';
-  if (!email || !pass) { $('loginError').textContent = 'Vul beide velden in.'; return; }
-  try {
-    await signInWithEmailAndPassword(auth, email, pass);
-  } catch(e) {
-    const map = {
-      'auth/invalid-credential': 'Onjuist e-mailadres of wachtwoord.',
-      'auth/user-not-found':     'Geen account gevonden.',
-      'auth/wrong-password':     'Onjuist wachtwoord.',
-      'auth/too-many-requests':  'Te veel pogingen. Probeer later opnieuw.',
-    };
-    $('loginError').textContent = map[e.code] || 'Inloggen mislukt.';
-  }
+window.doLogout=async()=>{
+  _isAdmin=false;
+  if(auth) await signOut(auth);
+  $('adminView').classList.add('hidden');
+  $('studentView').classList.remove('hidden');
+  $('btnAdminTopLogin').classList.remove('hidden');
 };
+window.showAdminLogin=()=>$('adminLoginOverlay').classList.add('show');
+window.hideAdminLogin=()=>$('adminLoginOverlay').classList.remove('show');
 
-/* ── Logout ───────────────────────────────── */
-window.doLogout = async () => { if (auth) await signOut(auth); };
-
-/* ── Quiz status (realtime) ───────────────── */
-function initStatusWatcher() {
-  if (!window._fbOK || !db) { hideSplash(); return; }
-  const statusRef = ref(db, 'quiz_status');
-  // Eenmalig ophalen voor snelle splash-verwijdering
-  get(statusRef)
-    .then(s => { applyStatus(s.val()); hideSplash(); })
-    .catch(() => hideSplash());
-  // Daarna realtime
-  onValue(statusRef, s => applyStatus(s.val()));
+/* ══ ADMIN VIEW ══ */
+function showAdminView(user){
+  $('studentView').classList.add('hidden');
+  $('btnAdminTopLogin').classList.add('hidden');
+  $('adminLoginOverlay').classList.remove('show');
+  $('adminView').classList.remove('hidden');
+  if(user.photoURL){$('aUserAvatar').src=user.photoURL;$('aUserAvatar').style.display='block';}
+  $('aUserName').textContent=user.displayName||user.email||'Docent';
+  listenAdminState();
 }
 
-function applyStatus(status) {
-  window._lastStatus = status;
-  const isClosed = status && status.open === false;
-
-  // Gesloten scherm alleen tonen aan niet-admins
-  if (isClosed && !window._adminUser) {
-    const msgBox  = $('closedMsgBox');
-    const msgText = $('closedMsgText');
-    if (status.message && status.message.trim()) {
-      msgText.textContent = status.message.trim();
-      msgBox.classList.add('show');
+function listenAdminState(){
+  if(!db) return;
+  onValue(ref(db,'session/players'), snap=>{
+    const data=snap.val()||{};
+    const entries=Object.entries(data);
+    $('aStatPlayers').textContent=entries.length;
+    const grid=$('aPlayersGrid');
+    if(!entries.length){
+      grid.innerHTML='<div class="a-p-empty"><span>⏳</span> Wachten op leerlingen…</div>';
     } else {
-      msgBox.classList.remove('show');
+      grid.innerHTML=entries.map(([k,p],i)=>`
+        <div class="a-p-chip">
+          <div class="a-p-avatar" style="background:${COLORS[i%COLORS.length]}">${esc(p.name[0].toUpperCase())}</div>
+          <span class="a-p-name">${esc(p.name)}</span>
+        </div>`).join('');
     }
-    $('screenClosed').classList.add('visible');
-  } else {
-    $('screenClosed').classList.remove('visible');
-  }
-
-  // Sync toggle in admin panel
-  const tog = $('quizOpenToggle');
-  if (tog) { tog.checked = !isClosed; updateToggleUI(!isClosed); }
-}
-
-function syncPanelWithStatus() {
-  if (!db) return;
-  get(ref(db, 'quiz_status')).then(s => {
-    const st = s.val();
-    const isOpen = !st || st.open !== false;
-    $('quizOpenToggle').checked = isOpen;
-    updateToggleUI(isOpen);
-    if (st && st.message) $('apMsgInput').value = st.message;
+  });
+  onValue(ref(db,'session/state'), snap=>{
+    const st=snap.val();
+    if(!st) return;
+    applyAdminState(st);
   });
 }
 
-function hideSplash() {
-  const el = $('screenLoading');
-  el.classList.add('hidden');
-  setTimeout(() => { el.style.display = 'none'; }, 450);
+function applyAdminState(st){
+  const ph=st.phase||'lobby';
+  const pillMap={lobby:'pill-indigo',question:'pill-green',between:'pill-amber',finished:'pill-blue'};
+  const lblMap ={lobby:'Lobby',question:'Bezig',between:'Pauze',finished:'Afgerond'};
+  $('aStatusPill').className='pill '+pillMap[ph];
+  $('aStatusPill').innerHTML=`<span class="dot dot-pulse"></span> ${lblMap[ph]||ph}`;
+
+  if(ph==='lobby'){
+    showAScreen('aLobby');
+  } else if(ph==='question'||ph==='between'){
+    showAScreen('aQuestion');
+    const q=QUESTIONS[st.questionIndex];
+    const sOpts=st.shuffledOpts||[];
+    $('aQTitle').textContent=`Vraag ${st.questionIndex+1} / ${QUESTIONS.length}`;
+    $('aQText').textContent=q.q;
+    $('aBtnNext').textContent=st.questionIndex>=QUESTIONS.length-1?'🏁 Eindstand tonen':'Volgende vraag →';
+    $('aAfterQ').textContent=st.questionIndex;
+    renderAdminOptions(sOpts,q,st.questionIndex);
+    if(ph==='question') startAdminTimer(st.startedAt);
+    else { stopAdminTimer(); $('aTimerNum').textContent='—'; $('aTimerFill').style.width='0%'; $('aTimerNum').classList.remove('urgent'); }
+    listenAnswers(st.questionIndex,sOpts,q);
+    listenLb('aMiniLbRows');
+  } else if(ph==='finished'){
+    stopAdminTimer();
+    showAScreen('aFinal');
+    listenLb('aFinalRows');
+  }
 }
 
-initStatusWatcher();
+function renderAdminOptions(sOpts,q,qIdx){
+  const correctText=q.opts[q.correct];
+  $('aOptsGrid').innerHTML=sOpts.map((t,i)=>{
+    const isC=t===correctText;
+    return `<div class="a-opt ${isC?'is-correct':''}" id="aOpt${i}">
+      <div class="a-opt-letter">${LETTERS[i]}</div>
+      <div class="a-opt-body">
+        <div class="a-opt-text">${esc(t)}</div>
+        <div class="a-opt-count" id="aCnt${i}">0 antwoorden</div>
+      </div>
+    </div>`;
+  }).join('');
+}
 
-/* ── Admin panel: toggle handler ─────────── */
-window.updateToggleUI = (isOpen) => {
-  const card   = $('apToggleCard');
-  const row    = $('apStatusRow');
-  const text   = $('apStatusText');
-  card.className = 'ap-toggle-card ' + (isOpen ? 'open' : 'closed');
-  row.className  = 'ap-status-row '  + (isOpen ? 'state-open' : 'state-closed');
-  text.textContent = isOpen ? 'Open' : 'Gesloten';
-};
+function showAScreen(id){
+  ['aLobby','aQuestion','aFinal'].forEach(s=>$(s).classList.add('hidden'));
+  $(id).classList.remove('hidden');
+}
 
-window.onStatusToggle = async (cb) => {
-  if (!db) return;
-  const isOpen = cb.checked;
-  updateToggleUI(isOpen);
-  const msg = $('apMsgInput').value.trim();
-  await set(ref(db, 'quiz_status'), { open: isOpen, message: msg });
-};
+let _aTimerInt=null;
+function startAdminTimer(startedAt){
+  stopAdminTimer();
+  const tick=()=>{
+    const left=Math.max(0,TIME_PER_Q-(Date.now()-startedAt)/1000);
+    $('aTimerNum').textContent=Math.ceil(left);
+    $('aTimerFill').style.width=(left/TIME_PER_Q*100)+'%';
+    left<=5?$('aTimerNum').classList.add('urgent'):$('aTimerNum').classList.remove('urgent');
+  };
+  tick(); _aTimerInt=setInterval(tick,300);
+}
+function stopAdminTimer(){ if(_aTimerInt){clearInterval(_aTimerInt);_aTimerInt=null;} }
 
-window.saveAdminMessage = async () => {
-  if (!db) return;
-  const btn = $('apSaveBtn');
-  btn.disabled = true; btn.textContent = '...';
-  const msg    = $('apMsgInput').value.trim();
-  const isOpen = $('quizOpenToggle').checked;
-  await set(ref(db, 'quiz_status'), { open: isOpen, message: msg });
-  btn.disabled = false;
-  btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Opslaan`;
-  const cm = $('apSavedMsg');
-  cm.textContent = '✓ Opgeslagen';
-  setTimeout(() => { cm.textContent = ''; }, 3000);
-};
-
-/* ── Scores opslaan ───────────────────────── */
-window._fbSave = async (name, score) => {
-  if (!window._fbOK || !db) return false;
-  try {
-    await push(ref(db, 'quiz_scores'), { name, score, total: 10, ts: Date.now() });
-    return true;
-  } catch(e) { return false; }
-};
-
-/* ── Leaderboard (resultaatscherm) ────────── */
-window._fbListen = (cb) => {
-  if (!window._fbOK || !db) { cb(window._localScores || []); return; }
-  const q = query(ref(db, 'quiz_scores'), orderByChild('score'), limitToLast(100));
-  onValue(q, snap => {
-    const val = snap.val();
-    if (!val) { cb([]); return; }
-    const best = {};
-    Object.values(val).forEach(e => {
-      if (!best[e.name] || e.score > best[e.name].score) best[e.name] = e;
+let _answersUnsub=null;
+function listenAnswers(qIdx,sOpts,q){
+  if(_answersUnsub){ _answersUnsub(); _answersUnsub=null; }
+  const correctText=q.opts[q.correct];
+  const r=ref(db,`session/answers/q${qIdx}`);
+  _answersUnsub=onValue(r, snap=>{
+    const data=snap.val()||{};
+    const entries=Object.values(data);
+    const counts=[0,0,0,0];
+    entries.forEach(a=>{ if(a.optionIndex!==undefined) counts[a.optionIndex]++; });
+    counts.forEach((c,i)=>{
+      const el=$(`aCnt${i}`); if(el) el.textContent=c+(c===1?' antwoord':' antwoorden');
+      const opt=$(`aOpt${i}`); if(opt&&c>0) opt.classList.add('has-answers');
     });
-    cb(Object.values(best).sort((a,b) => b.score - a.score).slice(0, 10));
+    $('aAnsweredPill').innerHTML=`<span class="dot dot-pulse"></span> ${entries.length} geantwoord`;
+    $('aLiveCount').textContent=entries.length;
+    $('aLiveChips').innerHTML=entries.map(a=>{
+      const isC=sOpts[a.optionIndex]===correctText;
+      return `<span class="a-live-chip ${isC?'c':'w'}">${esc(a.name)}</span>`;
+    }).join('');
   });
+}
+
+let _lbUnsub=null;
+function listenLb(targetId){
+  if(_lbUnsub){ _lbUnsub(); _lbUnsub=null; }
+  _lbUnsub=onValue(ref(db,'session/players'), snap=>{
+    const data=snap.val()||{};
+    const players=Object.values(data).map(p=>({name:p.name,points:p.points||0})).sort((a,b)=>b.points-a.points);
+    const maxPts=players[0]?.points||1;
+    const rc=i=>['r1','r2','r3'][i]||'';
+    const re=i=>['🥇','🥈','🥉'][i]??(i+1);
+    $(targetId).innerHTML=players.length
+      ? players.map((p,i)=>`
+        <div class="a-lb-row" style="animation-delay:${i*.05}s">
+          <div class="a-lb-rank ${rc(i)}">${re(i)}</div>
+          <div class="a-lb-name">${esc(p.name)}</div>
+          <div class="a-lb-bar-wrap"><div class="a-lb-bar-bg"><div class="a-lb-bar-fill" style="width:${(p.points/maxPts)*100}%"></div></div></div>
+          <div class="a-lb-pts">${p.points} pt</div>
+        </div>`).join('')
+      : '<div class="a-lb-empty">Nog geen scores</div>';
+  });
+}
+
+/* ── Admin acties ── */
+window.adminStartQuiz=async()=>{
+  if(!db) return;
+  const snap=await get(ref(db,'session/players'));
+  const players=snap.val()||{};
+  if(!Object.keys(players).length){ alert('Er zijn nog geen deelnemers ingelogd!'); return; }
+  const reset={};
+  Object.keys(players).forEach(k=>{ reset[k]={name:players[k].name,points:0}; });
+  await set(ref(db,'session/players'),reset);
+  await set(ref(db,'session/answers'),null);
+  await startQuestion(0);
 };
 
-/* ── Admin leaderboard modal ──────────────── */
-let _adminLbStarted = false;
-
-function startAdminLbListener() {
-  if (!db || _adminLbStarted) return;
-  _adminLbStarted = true;
-  const q = query(ref(db, 'quiz_scores'), orderByChild('score'), limitToLast(200));
-  onValue(q, snap => {
-    const val  = snap.val();
-    const list = $('lbAdminList');
-    if (!val) { list.innerHTML = '<div class="lb-admin-empty">Nog geen scores.</div>'; return; }
-
-    // Alle entries gesorteerd, per naam beste score, maar bewaar originele key voor verwijdering
-    const all = Object.entries(val)
-      .map(([key, e]) => ({ key, ...e }))
-      .sort((a, b) => b.score - a.score);
-
-    const seen = new Set(), top = [];
-    all.forEach(e => { if (!seen.has(e.name)) { seen.add(e.name); top.push(e); } });
-
-    const rc = i => ['gold','silver','bronze'][i] || '';
-    const re = i => ['🥇','🥈','🥉'][i] ?? (i + 1);
-
-    list.innerHTML = top.slice(0, 50).map((e, i) => `
-      <div class="lb-admin-row" style="animation-delay:${i * 0.04}s">
-        <div class="lb-admin-rank ${rc(i)}">${re(i)}</div>
-        <div class="lb-admin-name">${esc(e.name)}</div>
-        <div class="lb-admin-bar-wrap">
-          <div class="lb-admin-bar-bg">
-            <div class="lb-admin-bar-fill" style="width:${(e.score/10)*100}%"></div>
-          </div>
-        </div>
-        <div class="lb-admin-score">${e.score}/10</div>
-        <button class="lb-admin-del" title="Verwijder score"
-          onclick="deleteAdminScore('${esc(e.key)}','${esc(e.name)}')">🗑</button>
-      </div>`).join('');
-  });
+async function startQuestion(idx){
+  const q=QUESTIONS[idx];
+  const sOpts=shuffle([...q.opts]);
+  await set(ref(db,'session/state'),{phase:'question',questionIndex:idx,shuffledOpts:sOpts,startedAt:Date.now()});
 }
 
-window.deleteAdminScore = async (key, name) => {
-  if (!db) return;
-  if (!confirm(`Score van "${name}" verwijderen?`)) return;
-  await remove(ref(db, 'quiz_scores/' + key));
+window.adminNextQuestion=async()=>{
+  if(!db) return;
+  const snap=await get(ref(db,'session/state'));
+  const st=snap.val(); if(!st) return;
+  const next=st.questionIndex+1;
+  if(next>=QUESTIONS.length){
+    await set(ref(db,'session/state'),{phase:'finished',questionIndex:st.questionIndex});
+  } else {
+    await set(ref(db,'session/state'),{...st,phase:'between'});
+    setTimeout(()=>startQuestion(next),200);
+  }
 };
 
-window.openLbAdminModal  = () => $('lbAdminOverlay').classList.add('open');
-window.closeLbAdminModal = () => $('lbAdminOverlay').classList.remove('open');
-$('lbAdminOverlay').addEventListener('click', e => {
-  if (e.target === $('lbAdminOverlay')) window.closeLbAdminModal();
-});
+window.adminResetAll=async()=>{
+  if(!db) return;
+  if(!confirm('Weet je zeker dat je alles wilt resetten? Alle spelers en scores worden verwijderd.')) return;
+  stopAdminTimer();
+  if(_answersUnsub){_answersUnsub();_answersUnsub=null;}
+  if(_lbUnsub){_lbUnsub();_lbUnsub=null;}
+  await set(ref(db,'session'),{state:{phase:'lobby'},players:null,answers:null});
+};
 
-/* ── Login modal ──────────────────────────── */
-window.openLoginModal  = () => { $('loginOverlay').classList.add('open'); $('loginError').textContent = ''; }
-window.closeLoginModal = () => $('loginOverlay').classList.remove('open');
-$('loginOverlay').addEventListener('click', e => {
-  if (e.target === $('loginOverlay')) window.closeLoginModal();
-});
-</script>
+/* ══ LEERLING LOGICA ══ */
+window.joinQuiz=async()=>{
+  const name=$('nicknameInput').value.trim();
+  if(name.length<2){$('nicknameError').style.display='block';return;}
+  $('nicknameError').style.display='none';
+  if(!db) return;
+  const stSnap=await get(ref(db,'session/state'));
+  const st=stSnap.val();
+  if(st&&st.phase!=='lobby'){ alert('De quiz is al bezig. Wacht op de volgende ronde.'); return; }
+  const pr=push(ref(db,'session/players'));
+  _myKey=pr.key; _myName=name;
+  await set(pr,{name,points:0});
+  showSScreen('sWaiting');
+  $('sWaitName').textContent=name;
+  listenStudentState();
+};
 
-<!-- ══════════════════════════════════════════════
-     QUIZ LOGICA
-══════════════════════════════════════════════ -->
-<script>
-const questions = [
-  { q:"Hoeveel suikerklontjes zitten er gemiddeld in een standaard pakje appelsap van 200ml?",
-    opts:["Ongeveer 2 klontjes","Ongeveer 5 klontjes (21 gram suiker)","Ongeveer 8 klontjes","Er zit geen suiker in, want het is fruit"],
-    correct:1, explain:"Een pakje appelsap van 200ml bevat gemiddeld zo'n 21 gram suiker — dat zijn ongeveer 5 suikerklontjes!" },
-  { q:"Welk vak in de 'Schijf van Vijf' is het grootst en vormt de basis van een gezonde maaltijd?",
-    opts:["Zuivel, noten en vis","Groente en fruit","Smeer- en bereidingsvetten","Brood, graanproducten en aardappelen"],
-    correct:1, explain:"Groente en fruit vormen het grootste vak van de Schijf van Vijf. Probeer elke dag minimaal 250g groente en 2 stuks fruit te eten." },
-  { q:"Wat wordt bedoeld met de term 'zonder toegevoegde suikers' op een etiket?",
-    opts:["Het product bevat helemaal geen suiker","Er is geen extra suiker door de fabrikant toegevoegd (maar er kan wel natuurlijke suiker in zitten)","Het product is altijd gezonder dan de normale variant","Het product bevat alleen kunstmatige zoetstoffen"],
-    correct:1, explain:"'Zonder toegevoegde suikers' betekent dat de fabrikant geen extra suiker heeft toegevoegd. Van nature aanwezige suikers kunnen nog steeds aanwezig zijn!" },
-  { q:"Waarom is het eten van een hele appel gezonder dan het drinken van een glas appelsap?",
-    opts:["In een hele appel zitten meer vezels die de suikeropname vertragen","In appelsap zitten giftige stoffen van de schil","Een hele appel bevat minder calorieën dan sap","Er is geen verschil, suiker is suiker"],
-    correct:0, explain:"Een hele appel bevat veel vezels. Die vezels vertragen de opname van suiker in je bloed, waardoor je geen snelle piek en dip krijgt." },
-  { q:"Welke supermarktstrategie wordt vaak gebruikt om ongezonde producten aan kinderen te verkopen?",
-    opts:["Producten op de bovenste plank zetten","Kleurrijke verpakkingen op ooghoogte van kinderen plaatsen","Alleen groente en fruit bij de kassa leggen","Producten zonder plaatjes verkopen"],
-    correct:1, explain:"Supermarkten plaatsen ongezonde producten bewust op ooghoogte van kinderen, met kleurrijke verpakkingen om de aandacht te trekken." },
-  { q:"Wat is een 'verborgen suiker'?",
-    opts:["Suiker die met een microscoop moet worden gezocht","Suiker in producten waarvan je niet direct verwacht dat ze zoet zijn (zoals ketchup of pastasaus)","Suiker die alleen in de fabriek zichtbaar is","Suiker die pas ontstaat na het koken"],
-    correct:1, explain:"Verborgen suikers zitten in producten zoals ketchup, pastasaus, soep of ontbijtgranen — producten die je niet direct als 'zoet' beschouwt." },
-  { q:"Wat is de beste dorstlesser volgens de Schijf van Vijf?",
-    opts:["Light-frisdrank","Water en thee zonder suiker","Isotone sportdranken","Vruchtensap aangelengd met water"],
-    correct:1, explain:"Water en thee zonder suiker zijn de beste keuze om dorst te lessen. Ze bevatten geen calorieën, suiker of kunstmatige toevoegingen." },
-  { q:"Welke naam op een etiket wijst NIET op een vorm van suiker?",
-    opts:["Dextrose","Natrium (dit is zout)","Maltodextrine","Agavesiroop"],
-    correct:1, explain:"Natrium is zout, geen suiker! Dextrose, maltodextrine en agavesiroop zijn allemaal vormen van suiker op etiketten." },
-  { q:"Wat doet te veel suiker met je concentratie op school?",
-    opts:["Je krijgt een energie-dip (after-sugar crash) na een korte piek","Je kunt de hele dag beter opletten","Suiker heeft geen invloed op je hersenen","Je wordt er alleen maar rustiger van"],
-    correct:0, explain:"Na een suikerpiek daalt je bloedsuikerspiegel snel weer. Die 'sugar crash' zorgt voor vermoeidheid en slechte concentratie." },
-  { q:"Waarom staan gezonde producten zoals groente vaak aan het begin van de supermarktroute?",
-    opts:["Zodat ze niet geplet worden onder andere boodschappen","Zodat je een 'gezond' gevoel krijgt en later makkelijker ongezonde dingen koopt","Omdat groente het zwaarst is om te tillen","Groente moet altijd dicht bij de ingang staan voor de ventilatie"],
-    correct:1, explain:"Als je eerst gezonde producten in je mandje legt, voel je je al 'goed bezig' en ben je later sneller geneigd iets ongezonds toe te voegen." }
-];
-
-const LETTERS = ['A','B','C','D'];
-let current=0, score=0, answered=false, username='';
-let correctPositions=[], shuffledOpts=[];
-window._localScores = [];
-window._adminUser   = null;
-window._lastStatus  = null;
-
-const $id = id => document.getElementById(id);
-
-function showScreen(id) {
-  ['screen-start','screen-quiz','screen-result'].forEach(s => $id(s).style.display = s===id?'flex':'none');
-  $id('result-footer').style.display = id==='screen-result' ? 'block' : 'none';
-}
-
-function makePositions(n) {
-  const pool = Array.from({length:n},(_,i)=>i%4);
-  for (let i=pool.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
-  for (let i=2;i<pool.length;i++) {
-    if (pool[i]===pool[i-1]&&pool[i]===pool[i-2])
-      for (let j=i+1;j<pool.length;j++) if(pool[j]!==pool[i]){[pool[i],pool[j]]=[pool[j],pool[i]];break;}
-  }
-  return pool;
-}
-function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
-function escQ(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-
-/* Privacy modal */
-function openPrivacy()  { $id('privacyModal').classList.add('open'); }
-function closePrivacy() { $id('privacyModal').classList.remove('open'); }
-$id('privacyModal').addEventListener('click', e => { if(e.target===$id('privacyModal')) closePrivacy(); });
-
-function toggleConsent(){ const c=$id('consentCheck'); c.checked=!c.checked; checkConsent(); }
-function checkConsent(){ if($id('consentCheck').checked) $id('consentError').style.display='none'; }
-
-/* Start */
-function handleStart() {
-  const val = $id('usernameInput').value.trim();
-  let ok = true;
-  if (val.length < 2) { $id('usernameError').style.display='block'; $id('usernameInput').style.borderColor='var(--wrong)'; ok=false; }
-  else { $id('usernameError').style.display='none'; $id('usernameInput').style.borderColor='var(--border)'; }
-  if (!$id('consentCheck').checked) { $id('consentError').style.display='block'; ok=false; }
-  else { $id('consentError').style.display='none'; }
-  if (!ok) return;
-  username=val; current=0; score=0;
-  correctPositions=makePositions(questions.length);
-  showScreen('screen-quiz'); loadQuestion();
-}
-$id('usernameInput').addEventListener('keydown', e => { if(e.key==='Enter') handleStart(); });
-
-/* Load question */
-function loadQuestion() {
-  answered = false;
-  const q=questions[current], pos=correctPositions[current];
-  const wrongs=shuffle(q.opts.map((t,i)=>({t,i})).filter(o=>o.i!==q.correct));
-  shuffledOpts=[]; let wi=0;
-  for(let i=0;i<4;i++) shuffledOpts.push(i===pos?{text:q.opts[q.correct],ok:true}:{text:wrongs[wi++].t,ok:false});
-  $id('qNum').textContent=`Vraag ${current+1}`;
-  $id('qText').textContent=q.q;
-  $id('qLabel').textContent=`Vraag ${current+1} van ${questions.length}`;
-  $id('scoreLabel').textContent=`${username} · Score: ${score}`;
-  $id('progressFill').style.width=`${(current/questions.length)*100}%`;
-  $id('feedback').className='feedback'; $id('btnNext').className='btn-next';
-  const wrap=$id('options'); wrap.innerHTML='';
-  shuffledOpts.forEach((opt,i)=>{
-    const d=document.createElement('div'); d.className='option';
-    d.innerHTML=`<div class="option-letter">${LETTERS[i]}</div><div class="option-text">${escQ(opt.text)}</div>`;
-    d.onclick=()=>pick(i,d,pos,q); wrap.appendChild(d);
+function listenStudentState(){
+  onValue(ref(db,'session/state'), snap=>{
+    const st=snap.val(); if(!st) return;
+    handleStudentState(st);
   });
-  const card=document.querySelector('.quiz-card');
-  card.style.animation='none'; card.offsetHeight; card.style.animation='slideUp 0.4s ease both';
 }
 
-/* Pick */
-function pick(idx,el,correctIdx,q) {
-  if(answered) return; answered=true;
-  const all=document.querySelectorAll('.option');
-  all.forEach(o=>o.classList.add('locked'));
-  const ok=idx===correctIdx;
-  if(ok){ score++; el.classList.add('correct'); $id('feedback').className='feedback correct-fb show'; $id('fbIcon').textContent='✓'; $id('fbText').textContent=q.explain; }
-  else { el.classList.add('wrong'); all[correctIdx].classList.add('correct'); $id('feedback').className='feedback wrong-fb show'; $id('fbIcon').textContent='✗'; $id('fbText').textContent=`Niet helemaal — ${q.explain}`; }
-  $id('scoreLabel').textContent=`${username} · Score: ${score}`;
-  $id('btnNext').className='btn-next show';
-  $id('btnNext').textContent=current<questions.length-1?'Volgende vraag →':'Bekijk resultaat →';
-}
-
-function nextQuestion() { current++; if(current<questions.length) loadQuestion(); else showResult(); }
-
-/* Result */
-async function showResult() {
-  showScreen('screen-result');
-  const pct=Math.round((score/questions.length)*100);
-  $id('scoreNum').textContent=`${score}/10`;
-  $id('statCorrect').textContent=score;
-  $id('statWrong').textContent=questions.length-score;
-  $id('statPct').textContent=`${pct}%`;
-  setTimeout(()=>{ $id('ringFill').style.strokeDashoffset=364.4-(pct/100)*364.4; },100);
-  const t=['Blijf leren! 📚','Bijna! 🌱','Goed bezig! 👍','Uitstekend! 🏆','Perfect! 🌟'];
-  const m=['Geen zorgen — speel opnieuw en let op de uitleg bij elke vraag!','Je bent op de goede weg! Met wat extra kennis over etiketten word je nóg beter.','Solide score! Je hebt een goede basis over voeding.','Indrukwekkend! Je weet heel goed wat gezond eten inhoudt.','Geweldig — 10 uit 10! Jij bent een echte voedingsexpert. 🎉'];
-  const tier=pct===100?4:pct>=80?3:pct>=60?2:pct>=40?1:0;
-  $id('resultTitle').textContent=t[tier]; $id('resultMsg').textContent=m[tier];
-  let saved=false;
-  if(window._fbSave) saved=await window._fbSave(username,score);
-  if(!saved){
-    const ex=window._localScores.findIndex(s=>s.name===username);
-    if(ex>=0){if(score>window._localScores[ex].score) window._localScores[ex].score=score;}
-    else window._localScores.push({name:username,score});
-    window._localScores.sort((a,b)=>b.score-a.score);
+function handleStudentState(st){
+  const ph=st.phase;
+  if(ph==='lobby'){
+    showSScreen('sWaiting');
+  } else if(ph==='question'){
+    if(st.questionIndex!==_currentQ){
+      _currentQ=st.questionIndex; _answered=false;
+      showSScreen('sQuestion');
+      renderSQuestion(st);
+      startSTimer(st.startedAt,st.questionIndex);
+    }
+  } else if(ph==='between'){
+    stopSTimer();
+    lockSOptions();
+    $('sqWaitNext').classList.add('show');
+  } else if(ph==='finished'){
+    stopSTimer();
+    showSResult();
   }
-  $id('lbList').innerHTML='<div class="lb-loading"><div class="lb-dot"></div><div class="lb-dot"></div><div class="lb-dot"></div></div>';
-  if(window._fbListen) window._fbListen(drawLb); else drawLb(window._localScores);
 }
 
-function drawLb(entries){
-  const list=$id('lbList');
-  if(!entries||entries.length===0){list.innerHTML='<div class="lb-empty">Nog geen scores. Jij bent de eerste! 🎉</div>';return;}
-  const rc=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
-  const re=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
-  list.innerHTML=entries.map((e,i)=>`
-    <div class="lb-row ${e.name===username?'me':''}" style="animation-delay:${i*0.05}s">
-      <div class="lb-rank ${rc(i)}">${re(i)}</div>
-      <div class="lb-name">${escQ(e.name)}${e.name===username?'<span class="lb-you">▶ jij</span>':''}</div>
-      <div class="lb-bar-wrap"><div class="lb-bar-bg"><div class="lb-bar-fill" style="width:${(e.score/10)*100}%"></div></div></div>
-      <div class="lb-val">${e.score}/10</div>
+function renderSQuestion(st){
+  const q=QUESTIONS[st.questionIndex];
+  $('sqQNum').textContent=`Vraag ${st.questionIndex+1} van ${QUESTIONS.length}`;
+  $('sqQuestion').textContent=q.q;
+  $('sqBanner').className='sq-answered-banner';
+  $('sqWaitNext').classList.remove('show');
+  $('sqOptions').innerHTML=st.shuffledOpts.map((t,i)=>`
+    <div class="sq-option" id="sqOpt${i}" onclick="pickOption(${i})">
+      <div class="sq-option-letter">${LETTERS[i]}</div>
+      <div class="sq-option-text">${esc(t)}</div>
     </div>`).join('');
 }
 
-function restartQuiz(){
-  current=0;score=0;
-  correctPositions=makePositions(questions.length);
-  $id('ringFill').style.strokeDashoffset='364.4';
-  showScreen('screen-quiz');loadQuestion();
+window.pickOption=async(idx)=>{
+  if(_answered||!db||!_myKey) return;
+  _answered=true;
+  const elapsed=(Date.now()-_qStartTime)/1000;
+  const frac=Math.max(0,1-elapsed/TIME_PER_Q);
+  const earnedPts=Math.round(MAX_PTS*frac);
+  const stSnap=await get(ref(db,'session/state'));
+  const st=stSnap.val();
+  const q=QUESTIONS[st.questionIndex];
+  const correctText=q.opts[q.correct];
+  const isCorrect=st.shuffledOpts[idx]===correctText;
+  lockSOptions();
+  st.shuffledOpts.forEach((t,i)=>{
+    if(t===correctText) $(`sqOpt${i}`)?.classList.add('correct');
+  });
+  $(`sqOpt${idx}`)?.classList.add(isCorrect?'correct':'wrong');
+  const pts=isCorrect?earnedPts:0;
+  if(isCorrect)_myCorrect++;else _myWrong++;
+  _myPoints+=pts;
+  const banner=$('sqBanner');
+  banner.className='sq-answered-banner show '+(isCorrect?'correct-b':'wrong-b');
+  $('sqBannerIcon').textContent=isCorrect?'✓':'✗';
+  $('sqBannerText').textContent=isCorrect?'Goed! '+q.explain:'Fout — '+q.explain;
+  $('sqPtsEarned').textContent=isCorrect?`+${pts} punten`:'+0 punten';
+  await push(ref(db,`session/answers/q${st.questionIndex}`),{playerKey:_myKey,name:_myName,optionIndex:idx,correct:isCorrect,points:pts,ts:Date.now()});
+  await update(ref(db,`session/players/${_myKey}`),{points:_myPoints});
+};
+
+let _sTimerInt=null;
+function startSTimer(startedAt,qIdx){
+  stopSTimer();
+  _qStartTime=startedAt;
+  const tick=()=>{
+    const left=Math.max(0,TIME_PER_Q-(Date.now()-startedAt)/1000);
+    $('sqTimer').textContent=Math.ceil(left);
+    $('sqProgressFill').style.width=(left/TIME_PER_Q*100)+'%';
+    left<=5?$('sqTimer').classList.add('urgent'):$('sqTimer').classList.remove('urgent');
+    if(left<=0&&!_answered){
+      _answered=true; lockSOptions(); _myWrong++;
+      const b=$('sqBanner');
+      b.className='sq-answered-banner show wrong-b';
+      $('sqBannerIcon').textContent='⏱';
+      $('sqBannerText').textContent='Tijd is om! Je hebt geen antwoord gegeven.';
+      $('sqPtsEarned').textContent='+0 punten';
+    }
+  };
+  tick(); _sTimerInt=setInterval(tick,250);
 }
+function stopSTimer(){ if(_sTimerInt){clearInterval(_sTimerInt);_sTimerInt=null;} }
+function lockSOptions(){ document.querySelectorAll('.sq-option').forEach(o=>o.classList.add('locked')); }
+
+function showSResult(){
+  showSScreen('sResult');
+  const maxTotal=QUESTIONS.length*MAX_PTS;
+  const pct=_myPoints/maxTotal;
+  const titles=['Blijf oefenen! 📚','Goed bezig! 👍','Indrukwekkend! 🏆','Perfect! 🌟'];
+  const tier=pct>=.9?3:pct>=.6?2:pct>=.3?1:0;
+  $('sResTitle').textContent=titles[tier];
+  $('sResMsg').textContent=`Je beantwoordde ${_myCorrect} van de ${QUESTIONS.length} vragen goed.`;
+  $('resCorrect').textContent=_myCorrect;
+  $('resWrong').textContent=_myWrong;
+  $('resPts').textContent=_myPoints;
+  $('resPtsNum').textContent=_myPoints+'pt';
+  setTimeout(()=>{ $('resRingFill').style.strokeDashoffset=314-pct*314; },300);
+}
+
+function showSScreen(id){
+  ['sJoin','sWaiting','sQuestion','sResult'].forEach(s=>$(s).classList.add('hidden'));
+  $(id).classList.remove('hidden');
+}
+
+hideSplash();
 </script>
 </body>
 </html>
