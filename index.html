@@ -248,6 +248,37 @@ h1,h2,h3{font-family:'Fraunces',serif;line-height:1.1}
 .a-lb-pts{font-family:'Fraunces',serif;font-size:1rem;font-weight:700;color:var(--ink);min-width:54px;text-align:right;flex-shrink:0}
 .a-lb-empty{padding:24px;text-align:center;color:var(--ink3);font-size:14px}
 
+/* ══ ANSWER REVEAL & LEADERBOARD ANIMATION ══ */
+@keyframes revealCorrect{0%{transform:scale(1)}30%{transform:scale(1.04)}60%{transform:scale(.98)}100%{transform:scale(1)}}
+@keyframes lbSlideIn{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes lbRowSlide{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
+
+.a-opt.reveal-correct{
+  border-color:var(--green)!important;
+  background:var(--green-bg)!important;
+  animation:revealCorrect .5s ease both;
+}
+.a-opt.reveal-correct .a-opt-letter{background:var(--green)!important;color:#fff!important}
+
+/* Hide leaderboard during question, show after reveal */
+#aMiniLb{transition:opacity .3s}
+#aMiniLb.lb-hidden{opacity:0;pointer-events:none;visibility:hidden}
+#aMiniLb.lb-reveal{animation:lbSlideIn .5s ease both}
+
+.a-lb-row.lb-anim{animation:lbRowSlide .4s ease both}
+
+/* Next btn state */
+#aBtnNext.revealing{opacity:.5;pointer-events:none}
+
+/* Between phase overlay on question card */
+.a-between-banner{
+  display:none;padding:14px 20px;border-radius:12px;
+  background:#fef9c3;border:1px solid #fde68a;color:#92400e;
+  font-size:14px;font-weight:600;align-items:center;gap:10px;
+  margin-bottom:16px;
+}
+.a-between-banner.show{display:flex;animation:fadeUp .3s ease}
+
 @media(max-width:640px){.a-body{padding:16px}.a-topbar{padding:10px 16px}.s-card{padding:28px 20px}.a-q-card{padding:20px}}
 </style>
 </head>
@@ -470,6 +501,11 @@ h1,h2,h3{font-family:'Fraunces',serif;line-height:1.1}
         <div class="a-timer-bar"><div class="a-timer-fill" id="aTimerFill" style="width:100%"></div></div>
       </div>
 
+      <!-- Between-phase banner -->
+      <div class="a-between-banner" id="aBetweenBanner">
+        <span>✅</span> Antwoord onthuld! Leaderboard wordt geladen…
+      </div>
+
       <!-- Vraagkaart -->
       <div class="a-q-card">
         <div class="a-q-text" id="aQText"></div>
@@ -486,7 +522,7 @@ h1,h2,h3{font-family:'Fraunces',serif;line-height:1.1}
       </div>
 
       <!-- Tussenstand -->
-      <div class="a-lb" id="aMiniLb">
+      <div class="a-lb lb-hidden" id="aMiniLb">
         <div class="a-lb-header">
           <h3>Tussenstand</h3>
           <span class="pill pill-amber">na vraag <span id="aAfterQ">0</span></span>
@@ -674,11 +710,32 @@ function applyAdminState(st){
     $('aQText').textContent=q.q;
     $('aBtnNext').textContent=st.questionIndex>=QUESTIONS.length-1?'🏁 Eindstand tonen':'Volgende vraag →';
     $('aAfterQ').textContent=st.questionIndex;
-    renderAdminOptions(sOpts,q,st.questionIndex);
-    if(ph==='question') startAdminTimer(st.startedAt);
-    else { stopAdminTimer(); $('aTimerNum').textContent='—'; $('aTimerFill').style.width='0%'; $('aTimerNum').classList.remove('urgent'); }
+    // During question: hide correct; during between: show correct
+    renderAdminOptions(sOpts,q,st.questionIndex, ph==='between');
+    if(ph==='question'){
+      startAdminTimer(st.startedAt);
+      // Hide leaderboard and between banner during question
+      $('aMiniLb').classList.add('lb-hidden');
+      $('aMiniLb').classList.remove('lb-reveal');
+      $('aBetweenBanner').classList.remove('show');
+    } else {
+      // between phase: timer stopped, reveal answer, show leaderboard after delay
+      stopAdminTimer();
+      $('aTimerNum').textContent='—';
+      $('aTimerFill').style.width='0%';
+      $('aTimerNum').classList.remove('urgent');
+      $('aBetweenBanner').classList.add('show');
+      // Show leaderboard after 1.5s with animation
+      $('aMiniLb').classList.add('lb-hidden');
+      $('aMiniLb').classList.remove('lb-reveal');
+      setTimeout(()=>{
+        $('aBetweenBanner').classList.remove('show');
+        $('aMiniLb').classList.remove('lb-hidden');
+        $('aMiniLb').classList.add('lb-reveal');
+      }, 1500);
+    }
     listenAnswers(st.questionIndex,sOpts,q);
-    listenLb('aMiniLbRows');
+    if(ph==='between') listenLb('aMiniLbRows');
   } else if(ph==='finished'){
     stopAdminTimer();
     showAScreen('aFinal');
@@ -686,11 +743,13 @@ function applyAdminState(st){
   }
 }
 
-function renderAdminOptions(sOpts,q,qIdx){
+function renderAdminOptions(sOpts,q,qIdx,showCorrect){
   const correctText=q.opts[q.correct];
   $('aOptsGrid').innerHTML=sOpts.map((t,i)=>{
     const isC=t===correctText;
-    return `<div class="a-opt ${isC?'is-correct':''}" id="aOpt${i}">
+    // During question phase: never show correct styling
+    const cls=showCorrect&&isC?'is-correct':'';
+    return `<div class="a-opt ${cls}" id="aOpt${i}">
       <div class="a-opt-letter">${LETTERS[i]}</div>
       <div class="a-opt-body">
         <div class="a-opt-text">${esc(t)}</div>
@@ -698,6 +757,16 @@ function renderAdminOptions(sOpts,q,qIdx){
       </div>
     </div>`;
   }).join('');
+}
+
+function revealAdminAnswer(sOpts,q){
+  const correctText=q.opts[q.correct];
+  sOpts.forEach((t,i)=>{
+    if(t===correctText){
+      const el=$(`aOpt${i}`);
+      if(el){ el.classList.add('reveal-correct'); }
+    }
+  });
 }
 
 function showAScreen(id){
@@ -752,7 +821,7 @@ function listenLb(targetId){
     const re=i=>['🥇','🥈','🥉'][i]??(i+1);
     $(targetId).innerHTML=players.length
       ? players.map((p,i)=>`
-        <div class="a-lb-row" style="animation-delay:${i*.05}s">
+        <div class="a-lb-row lb-anim" style="animation-delay:${i*.08}s">
           <div class="a-lb-rank ${rc(i)}">${re(i)}</div>
           <div class="a-lb-name">${esc(p.name)}</div>
           <div class="a-lb-bar-wrap"><div class="a-lb-bar-bg"><div class="a-lb-bar-fill" style="width:${(p.points/maxPts)*100}%"></div></div></div>
@@ -783,14 +852,22 @@ async function startQuestion(idx){
 
 window.adminNextQuestion=async()=>{
   if(!db) return;
+  const btn=$('aBtnNext');
+  btn.disabled=true;
   const snap=await get(ref(db,'session/state'));
   const st=snap.val(); if(!st) return;
   const next=st.questionIndex+1;
   if(next>=QUESTIONS.length){
     await set(ref(db,'session/state'),{phase:'finished',questionIndex:st.questionIndex});
+    btn.disabled=false;
   } else {
+    // Step 1: Set between phase → board shows correct answer + leaderboard after 1.5s
     await set(ref(db,'session/state'),{...st,phase:'between'});
-    setTimeout(()=>startQuestion(next),200);
+    // Step 2: After 3.5s (enough to see leaderboard), start next question
+    setTimeout(async()=>{
+      await startQuestion(next);
+      btn.disabled=false;
+    }, 3500);
   }
 };
 
