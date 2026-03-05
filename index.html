@@ -10,6 +10,7 @@
     --bg: #0d1117; --surface: #161b22; --card: #1c2330;
     --accent: #4ade80; --accent2: #facc15; --wrong: #f87171;
     --text: #f0f6fc; --muted: #8b949e; --border: #30363d; --radius: 16px;
+    --admin-color: #818cf8;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
@@ -21,86 +22,351 @@
       radial-gradient(ellipse 60% 40% at 80% 100%, rgba(250,204,21,0.07), transparent);
   }
 
-  .header { text-align: center; margin-bottom: 28px; animation: fadeDown 0.7s ease both; }
-  .header .badge {
-    display: inline-block; background: rgba(74,222,128,0.15);
-    border: 1px solid rgba(74,222,128,0.35); color: var(--accent);
-    font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase;
-    padding: 4px 14px; border-radius: 99px; margin-bottom: 14px;
+  /* ─────────────────────────────────────────
+     TOP BAR
+  ───────────────────────────────────────── */
+  #topBar {
+    position: fixed; top: 0; right: 0; z-index: 600;
+    padding: 14px 20px; display: flex; align-items: center; gap: 10px;
+    pointer-events: none;
   }
+  #topBar > * { pointer-events: auto; }
+
+  #btnAdminLogin {
+    display: flex; align-items: center; gap: 7px;
+    padding: 8px 16px; border-radius: 99px;
+    background: rgba(28,35,48,0.9); border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+    color: var(--muted); cursor: pointer; transition: all 0.2s;
+    backdrop-filter: blur(8px);
+  }
+  #btnAdminLogin:hover { border-color: var(--admin-color); color: var(--admin-color); }
+  #btnAdminLogin.hidden { display: none; }
+
+  #adminChip {
+    display: none; align-items: center; gap: 8px;
+    padding: 5px 12px 5px 6px; border-radius: 99px;
+    background: rgba(129,140,248,0.1); border: 1px solid rgba(129,140,248,0.25);
+    backdrop-filter: blur(8px); animation: fadeIn 0.3s ease;
+  }
+  #adminChip.show { display: flex; }
+  #adminChip img {
+    width: 24px; height: 24px; border-radius: 50%; object-fit: cover;
+    border: 1.5px solid rgba(129,140,248,0.4);
+  }
+  #adminChip .chip-name { font-size: 12px; font-weight: 500; color: var(--admin-color); max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  #btnLogout {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 11px; font-family: 'DM Sans', sans-serif;
+    padding: 3px 6px; border-radius: 6px; transition: color 0.2s; display: none;
+  }
+  #btnLogout:hover { color: var(--wrong); }
+  #btnLogout.show { display: block; }
+
+  /* ─────────────────────────────────────────
+     ADMIN PANEL (slide-in balk onder topbar)
+  ───────────────────────────────────────── */
+  #adminPanel {
+    display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+    background: rgba(12,16,22,0.96); border-bottom: 1px solid rgba(129,140,248,0.18);
+    backdrop-filter: blur(16px); padding: 60px 20px 18px;
+  }
+  #adminPanel.show { display: block; animation: slideDownPanel 0.3s ease; }
+  @keyframes slideDownPanel { from { opacity:0; transform:translateY(-10px); } to { opacity:1; transform:translateY(0); } }
+
+  .ap-inner { max-width: 720px; margin: 0 auto; }
+  .ap-label {
+    font-size: 9px; font-weight: 700; letter-spacing: 2.5px; text-transform: uppercase;
+    color: var(--admin-color); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .ap-label::after { content:''; flex:1; height:1px; background: rgba(129,140,248,0.15); }
+  .ap-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: stretch; }
+
+  /* Status toggle card */
+  .ap-toggle-card {
+    display: flex; align-items: center; justify-content: space-between; gap: 20px;
+    padding: 14px 18px; border-radius: 14px;
+    background: var(--card); border: 1.5px solid var(--border);
+    flex: 0 0 auto; min-width: 200px; transition: border-color 0.3s;
+  }
+  .ap-toggle-card.open   { border-color: rgba(74,222,128,0.4); }
+  .ap-toggle-card.closed { border-color: rgba(248,113,113,0.4); }
+  .ap-toggle-info { display: flex; flex-direction: column; gap: 2px; }
+  .ap-toggle-sublabel { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--muted); font-weight: 600; }
+  .ap-status-row { display: flex; align-items: center; gap: 7px; font-size: 13.5px; font-weight: 600; }
+  .ap-status-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .state-open  .ap-status-dot { background: var(--accent); animation: pulse 1.5s infinite; }
+  .state-open  .ap-status-text { color: var(--accent); }
+  .state-closed .ap-status-dot { background: var(--wrong); }
+  .state-closed .ap-status-text { color: var(--wrong); }
+
+  /* Toggle switch */
+  .toggle-pill { position: relative; width: 46px; height: 24px; flex-shrink: 0; }
+  .toggle-pill input { opacity:0; width:0; height:0; }
+  .toggle-track {
+    position: absolute; inset: 0; border-radius: 99px;
+    background: var(--surface); border: 1.5px solid var(--border); cursor: pointer; transition: all 0.25s;
+  }
+  .toggle-track::before {
+    content:''; position:absolute; left:3px; top:50%; transform:translateY(-50%);
+    width:14px; height:14px; border-radius:50%; background: var(--muted); transition: all 0.25s;
+  }
+  .toggle-pill input:checked + .toggle-track { background: rgba(74,222,128,0.12); border-color: var(--accent); }
+  .toggle-pill input:checked + .toggle-track::before { left: calc(100% - 17px); background: var(--accent); }
+
+  /* Message card */
+  .ap-msg-card {
+    flex: 1; min-width: 220px; padding: 14px 18px; border-radius: 14px;
+    background: var(--card); border: 1px solid var(--border);
+    display: flex; flex-direction: column; gap: 8px;
+  }
+  .ap-msg-sublabel { font-size: 10px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--admin-color); font-weight: 600; }
+  .ap-msg-row { display: flex; gap: 7px; }
+  .ap-msg-input {
+    flex: 1; padding: 9px 12px; background: var(--surface);
+    border: 1.5px solid var(--border); border-radius: 10px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 13px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .ap-msg-input:focus { border-color: var(--admin-color); }
+  .ap-msg-input::placeholder { color: var(--muted); }
+  .ap-save-btn {
+    padding: 9px 16px; background: var(--admin-color); color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+    border: none; border-radius: 10px; cursor: pointer; transition: all 0.2s;
+    white-space: nowrap; display: flex; align-items: center; gap: 5px;
+  }
+  .ap-save-btn:hover { background: #a5b4fc; transform: translateY(-1px); }
+  .ap-save-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
+  .ap-saved-msg { font-size: 11px; color: var(--accent); height: 13px; }
+
+  /* LB button */
+  .ap-lb-btn {
+    padding: 14px 18px; border-radius: 14px;
+    background: var(--card); border: 1px solid var(--border);
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    color: var(--text); cursor: pointer; transition: all 0.2s;
+    display: flex; align-items: center; gap: 8px; white-space: nowrap;
+  }
+  .ap-lb-btn:hover { border-color: var(--accent2); color: var(--accent2); transform: translateY(-1px); }
+
+  /* ─────────────────────────────────────────
+     LOGIN MODAL
+  ───────────────────────────────────────── */
+  .overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75); z-index: 1100;
+    align-items: center; justify-content: center; padding: 20px;
+  }
+  .overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+
+  .login-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+    padding: 44px 38px; max-width: 400px; width: 100%;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+    text-align: center; animation: slideUp 0.3s ease;
+  }
+  .login-icon { font-size: 40px; margin-bottom: 14px; }
+  .login-box h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
+  .login-box .login-sub { color: var(--muted); font-size: 13px; margin-bottom: 28px; line-height: 1.55; }
+
+  .btn-google {
+    width: 100%; padding: 13px 20px; background: #fff; color: #1f1f1f;
+    border: none; border-radius: 12px; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all 0.2s; margin-bottom: 14px;
+  }
+  .btn-google:hover { background: #f1f3f4; transform: translateY(-1px); box-shadow: 0 6px 20px rgba(0,0,0,0.2); }
+
+  .divider-row { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+  .divider-row span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; }
+  .divider-row::before, .divider-row::after { content:''; flex:1; height:1px; background:var(--border); }
+
+  .login-form { display: flex; flex-direction: column; gap: 10px; text-align: left; margin-bottom: 10px; }
+  .login-form input {
+    width: 100%; padding: 13px 15px; background: var(--surface);
+    border: 1.5px solid var(--border); border-radius: 12px;
+    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none;
+    transition: border-color 0.2s;
+  }
+  .login-form input:focus { border-color: var(--admin-color); }
+  .login-form input::placeholder { color: var(--muted); }
+  .btn-email-login {
+    width: 100%; padding: 13px; background: var(--admin-color); color: #fff;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
+    border: none; border-radius: 12px; cursor: pointer; transition: all 0.2s;
+  }
+  .btn-email-login:hover { background: #a5b4fc; transform: translateY(-1px); }
+  .login-error { font-size: 12px; color: var(--wrong); min-height: 16px; text-align: center; margin-top: 2px; }
+  .btn-cancel-login {
+    margin-top: 14px; background: none; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--muted); transition: color 0.2s;
+  }
+  .btn-cancel-login:hover { color: var(--text); }
+
+  /* ─────────────────────────────────────────
+     LEADERBOARD MODAL (admin)
+  ───────────────────────────────────────── */
+  #lbAdminOverlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,0.8); z-index: 1200;
+    align-items: flex-start; justify-content: center;
+    padding: 20px; overflow-y: auto;
+  }
+  #lbAdminOverlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  .lb-admin-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+    padding: 38px; max-width: 560px; width: 100%; margin: auto;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.7); animation: slideUp 0.3s ease;
+  }
+  .lb-admin-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+  .lb-admin-header h2 { font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 900; }
+  .lb-close-btn {
+    width: 32px; height: 32px; border-radius: 9px;
+    background: var(--surface); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; color: var(--muted); font-size: 15px; transition: all 0.2s;
+  }
+  .lb-close-btn:hover { border-color: var(--wrong); color: var(--wrong); }
+  .lb-admin-sub { color: var(--muted); font-size: 11.5px; margin-bottom: 22px; display: flex; align-items: center; gap: 6px; }
+  .lb-admin-list { display: flex; flex-direction: column; gap: 8px; }
+  .lb-admin-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px; border-radius: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    animation: slideUp 0.35s ease both;
+  }
+  .lb-admin-rank { width: 28px; height: 28px; border-radius: 8px; font-size: 12px; font-weight: 700; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--card); color: var(--muted); }
+  .lb-admin-rank.gold   { background: rgba(250,204,21,0.15); color: var(--accent2); }
+  .lb-admin-rank.silver { background: rgba(148,163,184,0.15); color: #94a3b8; }
+  .lb-admin-rank.bronze { background: rgba(180,120,60,0.15); color: #cd7f32; }
+  .lb-admin-name { flex:1; font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lb-admin-bar-wrap { width: 72px; flex-shrink: 0; }
+  .lb-admin-bar-bg { height: 4px; background: var(--border); border-radius: 99px; overflow: hidden; }
+  .lb-admin-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.7s ease; }
+  .lb-admin-score { font-size: 13px; font-weight: 700; color: var(--accent); min-width: 34px; text-align: right; flex-shrink: 0; }
+  .lb-admin-del {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-size: 13px; padding: 4px 5px;
+    border-radius: 6px; transition: all 0.2s; flex-shrink: 0;
+  }
+  .lb-admin-del:hover { color: var(--wrong); background: rgba(248,113,113,0.1); }
+  .lb-admin-empty { text-align: center; color: var(--muted); padding: 30px 0; font-size: 14px; }
+
+  /* ─────────────────────────────────────────
+     QUIZ CLOSED FULLSCREEN
+  ───────────────────────────────────────── */
+  #screenClosed {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(248,113,113,0.10), transparent),
+      radial-gradient(ellipse 50% 40% at 10% 100%, rgba(250,204,21,0.06), transparent);
+    flex-direction: column; align-items: center; justify-content: center; padding: 24px;
+  }
+  #screenClosed.visible { display: flex; animation: fadeIn 0.5s ease; }
+
+  .closed-pulse-wrap { position: relative; margin-bottom: 36px; animation: floatY 3.5s ease-in-out infinite; }
+  @keyframes floatY { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-10px)} }
+  .closed-pulse-wrap::before, .closed-pulse-wrap::after {
+    content:''; position:absolute; inset:-14px; border-radius:50%;
+    border: 1px solid rgba(248,113,113,0.2); animation: ringOut 2.5s ease-out infinite;
+  }
+  .closed-pulse-wrap::after { animation-delay: 1.25s; }
+  @keyframes ringOut { 0%{transform:scale(0.9);opacity:0.7} 100%{transform:scale(1.4);opacity:0} }
+  .closed-ring {
+    width: 116px; height: 116px; border-radius: 50%;
+    background: rgba(248,113,113,0.07); border: 1.5px solid rgba(248,113,113,0.22);
+    display: flex; align-items: center; justify-content: center; font-size: 50px;
+    box-shadow: 0 0 60px rgba(248,113,113,0.1), 0 0 0 18px rgba(248,113,113,0.035);
+  }
+
+  .closed-pill {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3);
+    color: #fca5a5; font-size: 10.5px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    padding: 5px 16px; border-radius: 99px; margin-bottom: 22px;
+  }
+  .closed-pill-dot { width: 6px; height: 6px; border-radius: 50%; background: #f87171; animation: pulse 1.5s infinite; }
+
+  .closed-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.2rem,6vw,3.8rem); font-weight: 900;
+    line-height: 1.08; letter-spacing: -1px; text-align: center; margin-bottom: 16px;
+  }
+  .closed-title em { font-style: normal; color: #f87171; }
+  .closed-body {
+    font-size: clamp(14px,2vw,16px); color: var(--muted); font-weight: 300;
+    line-height: 1.7; text-align: center; max-width: 460px; margin-bottom: 36px;
+  }
+  .closed-body strong { color: var(--text); font-weight: 500; }
+  .closed-message-box {
+    background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+    padding: 18px 26px; max-width: 460px; width: 100%;
+    text-align: center; margin-bottom: 36px; display: none;
+  }
+  .closed-message-box.show { display: block; }
+  .closed-message-label { font-size: 9px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 7px; }
+  .closed-message-text { font-size: 14.5px; color: var(--text); line-height: 1.6; }
+  .closed-rule { width: 44px; height: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; margin-bottom: 36px; opacity: 0.35; }
+  .closed-footer-txt { font-size: 12px; color: var(--muted); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .closed-footer-txt a { color: var(--accent); text-decoration: none; }
+  .closed-footer-txt a:hover { text-decoration: underline; }
+  .closed-footer-dot { opacity: 0.3; }
+
+  /* ─────────────────────────────────────────
+     PRIVACY MODAL
+  ───────────────────────────────────────── */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; align-items: center; justify-content: center; padding: 20px; }
+  .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+  .modal-box { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; max-width: 580px; width: 100%; max-height: 80vh; overflow-y: auto; box-shadow: 0 32px 80px rgba(0,0,0,0.6); animation: slideUp 0.3s ease; }
+  .modal-box h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
+  .modal-box .modal-date { font-size: 11px; color: var(--muted); margin-bottom: 24px; letter-spacing: 0.5px; }
+  .modal-box h3 { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin: 20px 0 8px; }
+  .modal-box p { font-size: 13.5px; color: var(--muted); line-height: 1.7; margin-bottom: 8px; }
+  .modal-box ul { padding-left: 18px; margin-bottom: 8px; }
+  .modal-box ul li { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
+  .modal-close { margin-top: 28px; width: 100%; padding: 14px; background: var(--accent); color: #0d1117; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
+  .modal-close:hover { background: #86efac; }
+
+  /* ─────────────────────────────────────────
+     EXISTING QUIZ STYLES
+  ───────────────────────────────────────── */
+  .header { text-align: center; margin-bottom: 28px; animation: fadeDown 0.7s ease both; }
+  .header .badge { display: inline-block; background: rgba(74,222,128,0.15); border: 1px solid rgba(74,222,128,0.35); color: var(--accent); font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; padding: 4px 14px; border-radius: 99px; margin-bottom: 14px; }
   .header h1 { font-family: 'Playfair Display', serif; font-size: clamp(2rem,5vw,3.2rem); font-weight: 900; line-height: 1.1; letter-spacing: -1px; }
   .header h1 span { color: var(--accent); }
   .header p { color: var(--muted); margin-top: 8px; font-size: 15px; font-weight: 300; }
-
   .screen { width: 100%; display: flex; flex-direction: column; align-items: center; }
-
-  /* Start */
-  .start-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
-    padding: 40px; max-width: 520px; width: 100%;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.4); animation: slideUp 0.5s ease both;
-  }
+  .start-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; max-width: 520px; width: 100%; box-shadow: 0 24px 64px rgba(0,0,0,0.4); animation: slideUp 0.5s ease both; }
   .start-icon { font-size: 48px; margin-bottom: 16px; text-align: center; }
   .start-card h2 { font-family: 'Playfair Display', serif; font-size: 1.7rem; font-weight: 900; margin-bottom: 10px; text-align: center; }
   .start-card .sub { color: var(--muted); font-size: 14.5px; line-height: 1.6; margin-bottom: 22px; text-align: center; }
   .start-meta { display: flex; justify-content: center; gap: 10px; margin-bottom: 24px; flex-wrap: wrap; }
   .meta-chip { background: var(--surface); border: 1px solid var(--border); border-radius: 99px; padding: 5px 14px; font-size: 12px; color: var(--muted); }
-
   .input-wrap { margin-bottom: 18px; }
   .input-wrap label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
-  .input-wrap input {
-    width: 100%; padding: 14px 18px; background: var(--surface);
-    border: 1.5px solid var(--border); border-radius: var(--radius);
-    color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s;
-  }
+  .input-wrap input { width: 100%; padding: 14px 18px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); color: var(--text); font-family: 'DM Sans', sans-serif; font-size: 15px; outline: none; transition: border-color 0.2s; }
   .input-wrap input:focus { border-color: var(--accent); }
   .input-wrap input::placeholder { color: var(--muted); }
   .input-error { font-size: 12px; color: var(--wrong); margin-top: 6px; display: none; }
-
-  .btn-primary {
-    width: 100%; padding: 16px; background: var(--accent); color: #0d1117;
-    font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600;
-    border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease;
-  }
+  .btn-primary { width: 100%; padding: 16px; background: var(--accent); color: #0d1117; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease; }
   .btn-primary:hover { background: #86efac; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(74,222,128,0.2); }
-
-  /* Config notice */
-  .config-notice {
-    background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.3);
-    border-radius: 12px; padding: 12px 16px; margin-bottom: 18px;
-    font-size: 12.5px; color: #fde68a; line-height: 1.55; display: none;
-  }
-  .config-notice code { background: rgba(255,255,255,0.1); padding: 1px 5px; border-radius: 4px; }
-
-  /* Progress */
+  .config-notice { background: rgba(250,204,21,0.08); border: 1px solid rgba(250,204,21,0.3); border-radius: 12px; padding: 12px 16px; margin-bottom: 18px; font-size: 12.5px; color: #fde68a; line-height: 1.55; display: none; }
   .progress-wrap { width: 100%; max-width: 660px; margin-bottom: 18px; }
   .progress-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; font-weight: 500; }
   .progress-bar-bg { height: 5px; background: var(--border); border-radius: 99px; overflow: hidden; }
   .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 99px; transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
-
-  /* Quiz card */
-  .quiz-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
-    padding: 40px; max-width: 660px; width: 100%;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.4); animation: slideUp 0.5s ease both;
-  }
+  .quiz-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 40px; max-width: 660px; width: 100%; box-shadow: 0 24px 64px rgba(0,0,0,0.4); animation: slideUp 0.5s ease both; }
   .question-number { font-size: 11px; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; }
   .question-text { font-family: 'Playfair Display', serif; font-size: clamp(1.1rem,2.5vw,1.4rem); font-weight: 700; line-height: 1.45; margin-bottom: 28px; }
   .options { display: flex; flex-direction: column; gap: 12px; }
-  .option {
-    display: flex; align-items: center; gap: 14px; padding: 16px 20px;
-    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius);
-    cursor: pointer; transition: all 0.2s ease; user-select: none; position: relative; overflow: hidden;
-  }
+  .option { display: flex; align-items: center; gap: 14px; padding: 16px 20px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all 0.2s ease; user-select: none; position: relative; overflow: hidden; }
   .option::before { content:''; position:absolute; inset:0; background:var(--accent); opacity:0; transition:opacity 0.2s; }
   .option:hover:not(.locked)::before { opacity: 0.04; }
   .option:hover:not(.locked) { border-color: rgba(74,222,128,0.45); transform: translateY(-1px); }
-  .option-letter {
-    width: 34px; height: 34px; min-width: 34px; border-radius: 10px;
-    background: var(--card); border: 1.5px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 600; font-size: 13px; color: var(--muted); transition: all 0.2s; position: relative; z-index: 1;
-  }
+  .option-letter { width: 34px; height: 34px; min-width: 34px; border-radius: 10px; background: var(--card); border: 1.5px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; color: var(--muted); transition: all 0.2s; position: relative; z-index: 1; }
   .option-text { font-size: 14.5px; line-height: 1.5; position: relative; z-index: 1; }
   .option.correct { border-color: var(--accent); background: rgba(74,222,128,0.08); }
   .option.correct .option-letter { background: var(--accent); border-color: var(--accent); color: #0d1117; font-weight: 700; }
@@ -108,7 +374,6 @@
   .option.wrong .option-letter { background: var(--wrong); border-color: var(--wrong); color: #fff; font-weight: 700; }
   .option.locked { cursor: default; }
   .option.locked:hover { transform: none; }
-
   .feedback { margin-top: 20px; padding: 16px 20px; border-radius: var(--radius); font-size: 14px; line-height: 1.55; display: none; animation: fadeIn 0.3s ease; }
   .feedback.show { display: flex; align-items: flex-start; gap: 10px; }
   .feedback.correct-fb { background: rgba(74,222,128,0.1); border: 1px solid rgba(74,222,128,0.3); color: #86efac; }
@@ -117,15 +382,9 @@
   .btn-next { display: none; margin-top: 24px; width: 100%; padding: 16px; background: var(--accent); color: #0d1117; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s; }
   .btn-next:hover { background: #86efac; transform: translateY(-1px); }
   .btn-next.show { display: block; animation: fadeIn 0.4s ease; }
-
-  /* Result */
   .result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; max-width: 920px; width: 100%; }
   @media (max-width: 720px) { .result-grid { grid-template-columns: 1fr; } }
-
-  .result-card {
-    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
-    padding: 36px; box-shadow: 0 24px 64px rgba(0,0,0,0.4); text-align: center;
-  }
+  .result-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 36px; box-shadow: 0 24px 64px rgba(0,0,0,0.4); text-align: center; }
   .score-ring { width: 120px; height: 120px; margin: 0 auto 22px; position: relative; }
   .score-ring svg { transform: rotate(-90deg); }
   .ring-bg { fill: none; stroke: var(--border); stroke-width: 8; }
@@ -136,22 +395,14 @@
   .result-stats { display: flex; justify-content: center; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
   .stat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 18px; min-width: 75px; }
   .stat-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; }
-  .stat-val.g { color: var(--accent); }
-  .stat-val.r { color: var(--wrong); }
+  .stat-val.g { color: var(--accent); } .stat-val.r { color: var(--wrong); }
   .stat-label { font-size: 10px; color: var(--muted); margin-top: 2px; letter-spacing: 0.5px; }
-
-  /* Leaderboard */
   .lb-card { background: var(--card); border: 1px solid var(--border); border-radius: 24px; padding: 36px; box-shadow: 0 24px 64px rgba(0,0,0,0.4); }
   .lb-card h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; font-weight: 900; margin-bottom: 4px; }
   .lb-sub { color: var(--muted); font-size: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 6px; }
   .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); display: inline-block; animation: pulse 1.5s infinite; }
-  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
   .lb-list { display: flex; flex-direction: column; gap: 9px; }
-  .lb-row {
-    display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px;
-    background: var(--surface); border: 1px solid var(--border); transition: border-color 0.3s, background 0.3s;
-    animation: slideUp 0.4s ease both;
-  }
+  .lb-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; background: var(--surface); border: 1px solid var(--border); transition: border-color 0.3s, background 0.3s; animation: slideUp 0.4s ease both; }
   .lb-row.me { border-color: var(--accent); background: rgba(74,222,128,0.06); }
   .lb-rank { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; flex-shrink: 0; background: var(--card); color: var(--muted); }
   .lb-rank.gold { background: rgba(250,204,21,0.15); color: var(--accent2); }
@@ -168,194 +419,19 @@
   .lb-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: bounce 1s infinite; }
   .lb-dot:nth-child(2) { animation-delay: 0.2s; }
   .lb-dot:nth-child(3) { animation-delay: 0.4s; }
-  @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} }
-
-  /* ── Privacy modal ── */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75);
-    z-index: 1000; align-items: center; justify-content: center; padding: 20px;
-    animation: fadeIn 0.2s ease;
-  }
-  .modal-overlay.open { display: flex; }
-  .modal-box {
-    background: var(--card); border: 1px solid var(--border); border-radius: 24px;
-    padding: 40px; max-width: 580px; width: 100%; max-height: 80vh;
-    overflow-y: auto; box-shadow: 0 32px 80px rgba(0,0,0,0.6);
-    animation: slideUp 0.3s ease;
-  }
-  .modal-box h2 { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 900; margin-bottom: 6px; }
-  .modal-box .modal-date { font-size: 11px; color: var(--muted); margin-bottom: 24px; letter-spacing: 0.5px; }
-  .modal-box h3 { font-size: 13px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin: 20px 0 8px; }
-  .modal-box p { font-size: 13.5px; color: var(--muted); line-height: 1.7; margin-bottom: 8px; }
-  .modal-box ul { padding-left: 18px; margin-bottom: 8px; }
-  .modal-box ul li { font-size: 13.5px; color: var(--muted); line-height: 1.7; }
-  .modal-close {
-    margin-top: 28px; width: 100%; padding: 14px; background: var(--accent); color: #0d1117;
-    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600;
-    border: none; border-radius: var(--radius); cursor: pointer; transition: all 0.2s;
-  }
-  .modal-close:hover { background: #86efac; }
-
-  /* ── Consent checkbox ── */
-  .consent-wrap {
-    display: flex; align-items: flex-start; gap: 10px;
-    margin-bottom: 18px; padding: 14px 16px;
-    background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius);
-    cursor: pointer; transition: border-color 0.2s;
-  }
+  .consent-wrap { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 18px; padding: 14px 16px; background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: border-color 0.2s; }
   .consent-wrap:hover { border-color: rgba(74,222,128,0.4); }
   .consent-wrap input[type=checkbox] { margin-top: 2px; accent-color: var(--accent); width: 16px; height: 16px; flex-shrink: 0; cursor: pointer; }
   .consent-wrap label { font-size: 13px; color: var(--muted); line-height: 1.55; cursor: pointer; }
   .consent-wrap label a { color: var(--accent); text-decoration: underline; }
   .consent-error { font-size: 12px; color: var(--wrong); margin-top: -12px; margin-bottom: 14px; display: none; }
-
-  /* ── Footer ── */
-  .site-footer {
-    margin-top: 32px; text-align: center; font-size: 12px; color: var(--muted);
-    padding-bottom: 16px;
-  }
+  .site-footer { margin-top: 32px; text-align: center; font-size: 12px; color: var(--muted); padding-bottom: 16px; }
   .site-footer a { color: var(--accent); text-decoration: none; }
   .site-footer a:hover { text-decoration: underline; }
 
-  /* ════════════════════════════════
-     QUIZ GESLOTEN — FULLSCREEN
-  ════════════════════════════════ */
-  #screen-closed {
-    display: none;
-    position: fixed;
-    inset: 0;
-    z-index: 9999;
-    background: var(--bg);
-    background-image:
-      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(248,113,113,0.10), transparent),
-      radial-gradient(ellipse 50% 40% at 10% 100%, rgba(250,204,21,0.06), transparent);
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    padding: 24px;
-    animation: fadeIn 0.6s ease;
-  }
-  #screen-closed.visible { display: flex; }
-
-  /* Animated lock icon */
-  .closed-icon-wrap {
-    position: relative;
-    margin-bottom: 36px;
-    animation: floatUpDown 3s ease-in-out infinite;
-  }
-  @keyframes floatUpDown {
-    0%,100% { transform: translateY(0); }
-    50%      { transform: translateY(-10px); }
-  }
-  .closed-icon-ring {
-    width: 120px; height: 120px; border-radius: 50%;
-    background: rgba(248,113,113,0.08);
-    border: 1.5px solid rgba(248,113,113,0.25);
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 0 60px rgba(248,113,113,0.12), 0 0 0 20px rgba(248,113,113,0.04);
-  }
-  .closed-icon { font-size: 52px; line-height: 1; }
-
-  /* Pulse ring effect */
-  .closed-icon-wrap::before,
-  .closed-icon-wrap::after {
-    content: '';
-    position: absolute;
-    inset: -12px;
-    border-radius: 50%;
-    border: 1px solid rgba(248,113,113,0.2);
-    animation: ringPulse 2.5s ease-out infinite;
-  }
-  .closed-icon-wrap::after { animation-delay: 1.25s; }
-  @keyframes ringPulse {
-    0%   { transform: scale(0.95); opacity: 0.7; }
-    100% { transform: scale(1.35); opacity: 0; }
-  }
-
-  .closed-badge {
-    display: inline-flex; align-items: center; gap: 7px;
-    background: rgba(248,113,113,0.12);
-    border: 1px solid rgba(248,113,113,0.35);
-    color: #fca5a5;
-    font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
-    padding: 5px 16px; border-radius: 99px; margin-bottom: 22px;
-  }
-  .closed-badge-dot {
-    width: 6px; height: 6px; border-radius: 50%; background: #f87171;
-    animation: pulse 1.5s infinite;
-  }
-
-  .closed-title {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(2rem, 6vw, 3.6rem);
-    font-weight: 900;
-    line-height: 1.1;
-    letter-spacing: -1px;
-    text-align: center;
-    margin-bottom: 16px;
-    color: var(--text);
-  }
-  .closed-title span { color: #f87171; }
-
-  .closed-msg {
-    font-size: clamp(14px, 2vw, 16px);
-    color: var(--muted);
-    font-weight: 300;
-    line-height: 1.7;
-    text-align: center;
-    max-width: 480px;
-    margin-bottom: 40px;
-  }
-  .closed-msg strong { color: var(--text); font-weight: 500; }
-
-  /* Custom message from Firebase */
-  .closed-custom-msg {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px 28px;
-    max-width: 480px;
-    width: 100%;
-    margin-bottom: 40px;
-    text-align: center;
-    font-size: 14px;
-    color: var(--muted);
-    line-height: 1.65;
-    display: none;
-  }
-  .closed-custom-msg.show { display: block; }
-  .closed-custom-msg .custom-label {
-    font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
-    text-transform: uppercase; color: var(--accent);
-    margin-bottom: 8px;
-  }
-  .closed-custom-msg .custom-text {
-    font-size: 14.5px; color: var(--text); font-weight: 400;
-  }
-
-  .closed-divider {
-    width: 48px; height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
-    border-radius: 99px; margin-bottom: 40px; opacity: 0.4;
-  }
-
-  .closed-footer {
-    font-size: 12px; color: var(--muted); text-align: center;
-    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;
-  }
-  .closed-footer a { color: var(--accent); text-decoration: none; }
-  .closed-footer a:hover { text-decoration: underline; }
-  .closed-footer-dot { opacity: 0.3; }
-
   /* Loading splash */
-  #screen-loading {
-    position: fixed; inset: 0; z-index: 10000;
-    background: var(--bg);
-    display: flex; align-items: center; justify-content: center;
-    flex-direction: column; gap: 16px;
-    transition: opacity 0.4s ease;
-  }
-  #screen-loading.hidden { opacity: 0; pointer-events: none; }
+  #screenLoading { position: fixed; inset: 0; z-index: 10000; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 16px; transition: opacity 0.4s ease; }
+  #screenLoading.hidden { opacity: 0; pointer-events: none; }
   .loading-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; }
   .loading-logo span { color: var(--accent); }
   .loading-dots { display: flex; gap: 6px; }
@@ -363,6 +439,8 @@
   .loading-dot:nth-child(2) { animation-delay: 0.2s; }
   .loading-dot:nth-child(3) { animation-delay: 0.4s; }
 
+  @keyframes pulse    { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.8)} }
+  @keyframes bounce   { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-8px)} }
   @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
   @keyframes slideUp  { from{opacity:0;transform:translateY(20px)}  to{opacity:1;transform:translateY(0)} }
   @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
@@ -370,62 +448,143 @@
 </head>
 <body>
 
-<!-- ═══════ LOADING SPLASH ═══════ -->
-<div id="screen-loading">
+<!-- LOADING SPLASH -->
+<div id="screenLoading">
   <div class="loading-logo">Slim <span>Eten</span></div>
   <div class="loading-dots">
-    <div class="loading-dot"></div>
-    <div class="loading-dot"></div>
-    <div class="loading-dot"></div>
+    <div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div>
   </div>
 </div>
 
-<!-- ═══════ QUIZ GESLOTEN (fullscreen) ═══════ -->
-<div id="screen-closed">
-  <div class="closed-badge">
-    <span class="closed-badge-dot"></span>
-    Quiz niet beschikbaar
+<!-- TOP BAR -->
+<div id="topBar">
+  <button id="btnAdminLogin" onclick="openLoginModal()">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    Admin
+  </button>
+  <div id="adminChip">
+    <img id="adminAvatar" src="" alt="" style="display:none" />
+    <span class="chip-name" id="adminName">Admin</span>
+    <button id="btnLogout" onclick="doLogout()">↩</button>
   </div>
+</div>
 
-  <div class="closed-icon-wrap">
-    <div class="closed-icon-ring">
-      <span class="closed-icon">🔒</span>
+<!-- ADMIN PANEL -->
+<div id="adminPanel">
+  <div class="ap-inner">
+    <div class="ap-label">⚙️ Beheer paneel</div>
+    <div class="ap-row">
+
+      <!-- Status toggle -->
+      <div class="ap-toggle-card open" id="apToggleCard">
+        <div class="ap-toggle-info">
+          <div class="ap-toggle-sublabel">Quiz status</div>
+          <div class="ap-status-row state-open" id="apStatusRow">
+            <span class="ap-status-dot"></span>
+            <span class="ap-status-text" id="apStatusText">Open</span>
+          </div>
+        </div>
+        <label class="toggle-pill">
+          <input type="checkbox" id="quizOpenToggle" checked onchange="onStatusToggle(this)">
+          <span class="toggle-track"></span>
+        </label>
+      </div>
+
+      <!-- Message input -->
+      <div class="ap-msg-card">
+        <div class="ap-msg-sublabel">📢 Bericht voor leerlingen</div>
+        <div class="ap-msg-row">
+          <input type="text" class="ap-msg-input" id="apMsgInput"
+            placeholder="Bijv. 'We gaan om 14:00 weer live!'" maxlength="120" />
+          <button class="ap-save-btn" id="apSaveBtn" onclick="saveAdminMessage()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            Opslaan
+          </button>
+        </div>
+        <div class="ap-saved-msg" id="apSavedMsg"></div>
+      </div>
+
+      <!-- LB button -->
+      <button class="ap-lb-btn" onclick="openLbAdminModal()">
+        🏆 Leaderboard
+      </button>
+
     </div>
   </div>
+</div>
 
-  <h1 class="closed-title">De quiz is<br><span>gesloten</span></h1>
-
-  <p class="closed-msg">
-    Deze quiz is momenteel niet beschikbaar.<br>
-    <strong>Kom later terug</strong> om mee te doen.
-  </p>
-
-  <!-- Optionele aangepaste boodschap vanuit Firebase -->
-  <div class="closed-custom-msg" id="closedCustomMsg">
-    <div class="custom-label">📢 Bericht van de beheerder</div>
-    <div class="custom-text" id="closedCustomText"></div>
+<!-- QUIZ GESLOTEN (fullscreen) -->
+<div id="screenClosed">
+  <div class="closed-pill"><span class="closed-pill-dot"></span>Niet beschikbaar</div>
+  <div class="closed-pulse-wrap">
+    <div class="closed-ring">🔒</div>
   </div>
-
-  <div class="closed-divider"></div>
-
-  <div class="closed-footer">
+  <h1 class="closed-title">De quiz is<br><em>gesloten</em></h1>
+  <p class="closed-body">Deze quiz is momenteel niet beschikbaar.<br><strong>Kom later terug</strong> om mee te doen.</p>
+  <div class="closed-message-box" id="closedMsgBox">
+    <div class="closed-message-label">📢 Bericht van de beheerder</div>
+    <div class="closed-message-text" id="closedMsgText"></div>
+  </div>
+  <div class="closed-rule"></div>
+  <div class="closed-footer-txt">
     <a href="#" onclick="event.preventDefault();openPrivacy()">🔒 Privacybeleid</a>
     <span class="closed-footer-dot">·</span>
     <span>Slim Eten Quiz</span>
-    <span class="closed-footer-dot">·</span>
-    <span>Gegevens opgeslagen in EU (Firebase)</span>
   </div>
 </div>
 
-<!-- ═══════ PRIVACY MODAL ═══════ -->
+<!-- LOGIN MODAL -->
+<div class="overlay" id="loginOverlay">
+  <div class="login-box">
+    <div class="login-icon">🔑</div>
+    <h2>Admin inloggen</h2>
+    <p class="login-sub">Alleen voor beheerders. Log in om de quizstatus te beheren en het leaderboard te bekijken.</p>
+
+    <button class="btn-google" onclick="loginWithGoogle()">
+      <svg width="18" height="18" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Inloggen met Google
+    </button>
+
+    <div class="divider-row"><span>of met e-mail</span></div>
+
+    <div class="login-form">
+      <input type="email" id="loginEmail" placeholder="E-mailadres" autocomplete="email" />
+      <input type="password" id="loginPassword" placeholder="Wachtwoord"
+        autocomplete="current-password" onkeydown="if(event.key==='Enter')loginWithEmail()" />
+      <div class="login-error" id="loginError"></div>
+      <button class="btn-email-login" onclick="loginWithEmail()">Inloggen →</button>
+    </div>
+
+    <button class="btn-cancel-login" onclick="closeLoginModal()">Annuleren</button>
+  </div>
+</div>
+
+<!-- LEADERBOARD MODAL (admin) -->
+<div id="lbAdminOverlay">
+  <div class="lb-admin-box">
+    <div class="lb-admin-header">
+      <h2>🏆 Leaderboard</h2>
+      <button class="lb-close-btn" onclick="closeLbAdminModal()">✕</button>
+    </div>
+    <div class="lb-admin-sub"><span class="live-dot"></span> Realtime — alle deelnemers</div>
+    <div class="lb-admin-list" id="lbAdminList">
+      <div class="lb-loading"><div class="lb-dot"></div><div class="lb-dot"></div><div class="lb-dot"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PRIVACY MODAL -->
 <div class="modal-overlay" id="privacyModal">
   <div class="modal-box">
     <h2>🔒 Privacybeleid</h2>
     <div class="modal-date">Laatst bijgewerkt: juni 2025</div>
-
     <h3>Wie zijn wij?</h3>
     <p>Deze quiz ("Slim Eten — Voedingsquiz") is een educatieve webapplicatie over voeding en gezond eten. De quiz wordt aangeboden zonder commercieel doel.</p>
-
     <h3>Welke gegevens verzamelen wij?</h3>
     <p>Wij verzamelen uitsluitend de volgende gegevens wanneer je de quiz invult:</p>
     <ul>
@@ -434,38 +593,26 @@
       <li>Een <strong>tijdstempel</strong> (datum en tijd van deelname)</li>
     </ul>
     <p>Wij verzamelen <strong>geen</strong> persoonlijk identificeerbare informatie zoals echte namen, e-mailadressen, IP-adressen of locatiegegevens.</p>
-
     <h3>Waarom verzamelen wij deze gegevens?</h3>
     <p>De gegevens worden uitsluitend gebruikt om een <strong>live ranglijst (leaderboard)</strong> te tonen aan deelnemers van de quiz. Dit is het enige doel.</p>
-
     <h3>Grondslag (AVG/GDPR)</h3>
     <p>De verwerking is gebaseerd op jouw expliciete <strong>toestemming</strong> (Art. 6 lid 1 sub a AVG), die je geeft door het vakje op het startscherm aan te vinken.</p>
-
     <h3>Waar worden de gegevens opgeslagen?</h3>
     <p>Gegevens worden opgeslagen in <strong>Firebase Realtime Database</strong> (Google LLC), gesitueerd in de EU (europe-west1 — België). Google is gecertificeerd onder het EU-US Data Privacy Framework.</p>
-
     <h3>Hoe lang bewaren wij de gegevens?</h3>
-    <p>Scores worden bewaard zolang de quiz actief is. Je kunt te allen tijde verzoeken om verwijdering van jouw nickname en score (zie hieronder).</p>
-
+    <p>Scores worden bewaard zolang de quiz actief is. Je kunt te allen tijde verzoeken om verwijdering van jouw nickname en score.</p>
     <h3>Jouw rechten</h3>
-    <p>Op basis van de AVG heb je het recht op inzage, correctie en verwijdering van jouw gegevens. Omdat alleen een nickname wordt opgeslagen zonder contactinformatie, kun je een verwijderverzoek indienen door jouw nickname door te geven aan de beheerder van deze quiz.</p>
-
+    <p>Op basis van de AVG heb je het recht op inzage, correctie en verwijdering van jouw gegevens via de beheerder van deze quiz.</p>
     <h3>Cookies en tracking</h3>
     <p>Deze quiz gebruikt <strong>geen cookies</strong> en maakt <strong>geen gebruik van tracking of advertenties</strong>.</p>
-
     <h3>Kinderen en jongeren</h3>
     <p>Deze quiz is speciaal ontworpen voor leerlingen vanaf 14 jaar als onderdeel van een educatieve activiteit over voeding en gezond eten.</p>
-    <p>Er worden <strong>geen persoonsgegevens</strong> verzameld. Deelnemers kiezen zelf een nickname — dit hoeft geen echte naam te zijn. Er is geen mogelijkheid om een deelnemer te identificeren op basis van de opgeslagen gegevens.</p>
-    <p>Omdat er geen identificeerbare persoonsgegevens van minderjarigen worden verwerkt, is afzonderlijke ouderlijke toestemming voor deelname aan deze quiz niet vereist conform de AVG.</p>
-
-    <h3>Wijzigingen</h3>
-    <p>Dit privacybeleid kan worden bijgewerkt. De meest recente versie is altijd beschikbaar via de link onderaan de pagina.</p>
-
+    <p>Er worden <strong>geen persoonsgegevens</strong> verzameld. Deelnemers kiezen zelf een nickname. Omdat er geen identificeerbare persoonsgegevens van minderjarigen worden verwerkt, is afzonderlijke ouderlijke toestemming niet vereist conform de AVG.</p>
     <button class="modal-close" onclick="closePrivacy()">Sluiten ✕</button>
   </div>
 </div>
 
-<!-- ═══════ START ═══════ -->
+<!-- START SCHERM -->
 <div id="screen-start" class="screen">
   <div class="header">
     <div class="badge">🥦 Voedingsquiz</div>
@@ -501,7 +648,7 @@
   </div>
 </div>
 
-<!-- ═══════ QUIZ ═══════ -->
+<!-- QUIZ SCHERM -->
 <div id="screen-quiz" class="screen" style="display:none">
   <div class="header" style="margin-bottom:14px">
     <div class="badge">🥦 Voedingsquiz</div>
@@ -528,7 +675,7 @@
   </div>
 </div>
 
-<!-- ═══════ RESULT ═══════ -->
+<!-- RESULTAAT SCHERM -->
 <div id="screen-result" class="screen" style="display:none">
   <div class="header" style="margin-bottom:14px">
     <div class="badge">🥦 Voedingsquiz</div>
@@ -565,120 +712,241 @@
   <a href="#" onclick="event.preventDefault();openPrivacy()">🔒 Privacybeleid</a> &nbsp;·&nbsp; Slim Eten Quiz
 </div>
 
-<!-- ═══════════════════════════════════════════════
-  FIREBASE — inclusief quiz_status listener
-════════════════════════════════════════════════ -->
+<!-- ══════════════════════════════════════════════
+     FIREBASE  (Auth + Realtime Database)
+══════════════════════════════════════════════ -->
 <script type="module">
-// ════════════════════════════════════════════
-// Firebase configuratie
-// ════════════════════════════════════════════
-const FIREBASE_CONFIG = {
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {
+  getDatabase, ref, push, set, remove, get,
+  onValue, query, orderByChild, limitToLast
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+import {
+  getAuth, GoogleAuthProvider, signInWithPopup,
+  signInWithEmailAndPassword, signOut, onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+/* ── Config ───────────────────────────────── */
+const FB = {
   apiKey:            "AIzaSyAEe_DHNTkaiv5XC2auAuPvSxFBIQlw9_I",
   authDomain:        "voedingsquiz.firebaseapp.com",
   databaseURL:       "https://voedingsquiz-default-rtdb.europe-west1.firebasedatabase.app",
   projectId:         "voedingsquiz",
   storageBucket:     "voedingsquiz.firebasestorage.app",
   messagingSenderId: "469175449514",
-  appId:             "1:469175449514:web:620f6b6a7cb28c13041dd3",
-  measurementId:     "G-D5745RHCWY"
+  appId:             "1:469175449514:web:620f6b6a7cb28c13041dd3"
 };
 
-import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, onValue, query, orderByChild, limitToLast, get }
-  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+let db = null, auth = null;
+window._fbOK = false;
 
-let db = null;
-window._firebaseOK = false;
-
-if (FIREBASE_CONFIG.apiKey !== "JOUW_API_KEY") {
-  try {
-    const app = initializeApp(FIREBASE_CONFIG);
-    db = getDatabase(app);
-    window._firebaseOK = true;
-    console.log("✅ Firebase verbonden");
-  } catch(e) {
-    console.warn("Firebase init mislukt:", e);
-  }
-} else {
+try {
+  const app = initializeApp(FB);
+  db   = getDatabase(app);
+  auth = getAuth(app);
+  window._fbOK = true;
+} catch(e) {
+  console.warn("Firebase init mislukt:", e);
   document.getElementById('configNotice').style.display = 'block';
 }
 
-// ════════════════════════════════════════════
-// QUIZ STATUS — luistert realtime naar /quiz_status
-//
-// Zet in Firebase Realtime Database:
-//   quiz_status: {
-//     open: false,             ← true = quiz open, false = quiz gesloten
-//     message: "We gaan om 14:00 weer live!"   ← optioneel bericht (mag leeg)
-//   }
-// ════════════════════════════════════════════
-function initStatusListener() {
-  if (!window._firebaseOK || !db) {
-    // Geen Firebase → quiz gewoon open tonen
-    hideSplash();
-    return;
+/* ── Helpers ──────────────────────────────── */
+const $  = id => document.getElementById(id);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+/* ── Auth state ───────────────────────────── */
+if (auth) {
+  onAuthStateChanged(auth, async user => {
+    if (!user) { window._adminUser = null; onAdminLoggedOut(); return; }
+
+    // ── Whitelist check ──────────────────────────────────────────────────
+    // Controleer of het e-mailadres van de ingelogde gebruiker voorkomt in
+    // /admins/<email_encoded> in de database.
+    // Voeg admins toe in Firebase Realtime Database:
+    //   admins: { "jouwnaam@gmail,com": true }
+    // (vervang '.' door ',' in de key, want Firebase staat geen '.' toe in keys)
+    // ─────────────────────────────────────────────────────────────────────
+    let isAdmin = false;
+    if (db && user.email) {
+      try {
+        const emailKey = user.email.replace(/\./g, ',');   // Firebase staat geen '.' toe in keys
+        const snap = await get(ref(db, 'admins/' + emailKey));
+        isAdmin = snap.exists() && snap.val() === true;
+      } catch(e) { isAdmin = false; }
+    }
+
+    if (!isAdmin) {
+      // Ingelogd maar geen admin → meteen uitloggen, foutmelding tonen
+      await signOut(auth);
+      $('loginError').textContent = 'Geen toegang. Dit account is niet als admin ingesteld.';
+      $('loginOverlay').classList.add('open');
+      return;
+    }
+
+    window._adminUser = user;
+    onAdminLoggedIn(user);
+  });
+}
+
+function onAdminLoggedIn(user) {
+  $('btnAdminLogin').classList.add('hidden');
+  const chip = $('adminChip'); chip.classList.add('show');
+  if (user.photoURL) { const av = $('adminAvatar'); av.src = user.photoURL; av.style.display='block'; }
+  $('adminName').textContent = user.displayName || user.email || 'Admin';
+  $('btnLogout').classList.add('show');
+  $('adminPanel').classList.add('show');
+  // Sluit login modal
+  $('loginOverlay').classList.remove('open');
+  // Admin ziet nooit het gesloten scherm
+  $('screenClosed').classList.remove('visible');
+  // Laad huidige status in panel
+  syncPanelWithStatus();
+  // Start leaderboard listener
+  startAdminLbListener();
+}
+
+function onAdminLoggedOut() {
+  $('btnAdminLogin').classList.remove('hidden');
+  $('adminChip').classList.remove('show');
+  $('btnLogout').classList.remove('show');
+  $('adminPanel').classList.remove('show');
+  // Hercontroleer quiz status zodat gesloten scherm evt. zichtbaar wordt
+  if (window._lastStatus) applyStatus(window._lastStatus);
+}
+
+/* ── Google login ─────────────────────────── */
+window.loginWithGoogle = async () => {
+  if (!auth) return;
+  $('loginError').textContent = '';
+  try {
+    await signInWithPopup(auth, new GoogleAuthProvider());
+  } catch(e) {
+    $('loginError').textContent = 'Inloggen mislukt: ' + (e.message || e.code);
   }
+};
 
+/* ── E-mail login ─────────────────────────── */
+window.loginWithEmail = async () => {
+  if (!auth) return;
+  const email = $('loginEmail').value.trim();
+  const pass  = $('loginPassword').value;
+  $('loginError').textContent = '';
+  if (!email || !pass) { $('loginError').textContent = 'Vul beide velden in.'; return; }
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+  } catch(e) {
+    const map = {
+      'auth/invalid-credential': 'Onjuist e-mailadres of wachtwoord.',
+      'auth/user-not-found':     'Geen account gevonden.',
+      'auth/wrong-password':     'Onjuist wachtwoord.',
+      'auth/too-many-requests':  'Te veel pogingen. Probeer later opnieuw.',
+    };
+    $('loginError').textContent = map[e.code] || 'Inloggen mislukt.';
+  }
+};
+
+/* ── Logout ───────────────────────────────── */
+window.doLogout = async () => { if (auth) await signOut(auth); };
+
+/* ── Quiz status (realtime) ───────────────── */
+function initStatusWatcher() {
+  if (!window._fbOK || !db) { hideSplash(); return; }
   const statusRef = ref(db, 'quiz_status');
-
-  // Eerste keer: haal direct op zodat de loading splash snel verdwijnt
-  get(statusRef).then(snap => {
-    applyStatus(snap.val());
-    hideSplash();
-  }).catch(() => {
-    hideSplash(); // bij fout: toon de quiz gewoon
-  });
-
-  // Daarna: realtime updates (bijv. leraar sluit quiz terwijl leerling op pagina is)
-  onValue(statusRef, snap => {
-    applyStatus(snap.val());
-  });
+  // Eenmalig ophalen voor snelle splash-verwijdering
+  get(statusRef)
+    .then(s => { applyStatus(s.val()); hideSplash(); })
+    .catch(() => hideSplash());
+  // Daarna realtime
+  onValue(statusRef, s => applyStatus(s.val()));
 }
 
 function applyStatus(status) {
-  const closedScreen = document.getElementById('screen-closed');
-  const customMsgEl  = document.getElementById('closedCustomMsg');
-  const customTextEl = document.getElementById('closedCustomText');
-
-  // Als status null/undefined of open:true → quiz open
+  window._lastStatus = status;
   const isClosed = status && status.open === false;
 
-  if (isClosed) {
-    // Toon eventueel aangepaste boodschap
-    if (status.message && status.message.trim() !== '') {
-      customTextEl.textContent = status.message.trim();
-      customMsgEl.classList.add('show');
+  // Gesloten scherm alleen tonen aan niet-admins
+  if (isClosed && !window._adminUser) {
+    const msgBox  = $('closedMsgBox');
+    const msgText = $('closedMsgText');
+    if (status.message && status.message.trim()) {
+      msgText.textContent = status.message.trim();
+      msgBox.classList.add('show');
     } else {
-      customMsgEl.classList.remove('show');
+      msgBox.classList.remove('show');
     }
-    closedScreen.classList.add('visible');
+    $('screenClosed').classList.add('visible');
   } else {
-    closedScreen.classList.remove('visible');
+    $('screenClosed').classList.remove('visible');
   }
+
+  // Sync toggle in admin panel
+  const tog = $('quizOpenToggle');
+  if (tog) { tog.checked = !isClosed; updateToggleUI(!isClosed); }
+}
+
+function syncPanelWithStatus() {
+  if (!db) return;
+  get(ref(db, 'quiz_status')).then(s => {
+    const st = s.val();
+    const isOpen = !st || st.open !== false;
+    $('quizOpenToggle').checked = isOpen;
+    updateToggleUI(isOpen);
+    if (st && st.message) $('apMsgInput').value = st.message;
+  });
 }
 
 function hideSplash() {
-  const splash = document.getElementById('screen-loading');
-  splash.classList.add('hidden');
-  setTimeout(() => { splash.style.display = 'none'; }, 450);
+  const el = $('screenLoading');
+  el.classList.add('hidden');
+  setTimeout(() => { el.style.display = 'none'; }, 450);
 }
 
-// Start de status-check zodra de module laadt
-initStatusListener();
+initStatusWatcher();
 
-// ════════════════════════════════════════════
-// Scores opslaan & leaderboard
-// ════════════════════════════════════════════
+/* ── Admin panel: toggle handler ─────────── */
+window.updateToggleUI = (isOpen) => {
+  const card   = $('apToggleCard');
+  const row    = $('apStatusRow');
+  const text   = $('apStatusText');
+  card.className = 'ap-toggle-card ' + (isOpen ? 'open' : 'closed');
+  row.className  = 'ap-status-row '  + (isOpen ? 'state-open' : 'state-closed');
+  text.textContent = isOpen ? 'Open' : 'Gesloten';
+};
+
+window.onStatusToggle = async (cb) => {
+  if (!db) return;
+  const isOpen = cb.checked;
+  updateToggleUI(isOpen);
+  const msg = $('apMsgInput').value.trim();
+  await set(ref(db, 'quiz_status'), { open: isOpen, message: msg });
+};
+
+window.saveAdminMessage = async () => {
+  if (!db) return;
+  const btn = $('apSaveBtn');
+  btn.disabled = true; btn.textContent = '...';
+  const msg    = $('apMsgInput').value.trim();
+  const isOpen = $('quizOpenToggle').checked;
+  await set(ref(db, 'quiz_status'), { open: isOpen, message: msg });
+  btn.disabled = false;
+  btn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Opslaan`;
+  const cm = $('apSavedMsg');
+  cm.textContent = '✓ Opgeslagen';
+  setTimeout(() => { cm.textContent = ''; }, 3000);
+};
+
+/* ── Scores opslaan ───────────────────────── */
 window._fbSave = async (name, score) => {
-  if (!window._firebaseOK || !db) return false;
+  if (!window._fbOK || !db) return false;
   try {
     await push(ref(db, 'quiz_scores'), { name, score, total: 10, ts: Date.now() });
     return true;
-  } catch(e) { console.warn("Opslaan mislukt:", e); return false; }
+  } catch(e) { return false; }
 };
 
+/* ── Leaderboard (resultaatscherm) ────────── */
 window._fbListen = (cb) => {
-  if (!window._firebaseOK || !db) { cb(window._localScores || []); return; }
+  if (!window._fbOK || !db) { cb(window._localScores || []); return; }
   const q = query(ref(db, 'quiz_scores'), orderByChild('score'), limitToLast(100));
   onValue(q, snap => {
     const val = snap.val();
@@ -690,182 +958,234 @@ window._fbListen = (cb) => {
     cb(Object.values(best).sort((a,b) => b.score - a.score).slice(0, 10));
   });
 };
+
+/* ── Admin leaderboard modal ──────────────── */
+let _adminLbStarted = false;
+
+function startAdminLbListener() {
+  if (!db || _adminLbStarted) return;
+  _adminLbStarted = true;
+  const q = query(ref(db, 'quiz_scores'), orderByChild('score'), limitToLast(200));
+  onValue(q, snap => {
+    const val  = snap.val();
+    const list = $('lbAdminList');
+    if (!val) { list.innerHTML = '<div class="lb-admin-empty">Nog geen scores.</div>'; return; }
+
+    // Alle entries gesorteerd, per naam beste score, maar bewaar originele key voor verwijdering
+    const all = Object.entries(val)
+      .map(([key, e]) => ({ key, ...e }))
+      .sort((a, b) => b.score - a.score);
+
+    const seen = new Set(), top = [];
+    all.forEach(e => { if (!seen.has(e.name)) { seen.add(e.name); top.push(e); } });
+
+    const rc = i => ['gold','silver','bronze'][i] || '';
+    const re = i => ['🥇','🥈','🥉'][i] ?? (i + 1);
+
+    list.innerHTML = top.slice(0, 50).map((e, i) => `
+      <div class="lb-admin-row" style="animation-delay:${i * 0.04}s">
+        <div class="lb-admin-rank ${rc(i)}">${re(i)}</div>
+        <div class="lb-admin-name">${esc(e.name)}</div>
+        <div class="lb-admin-bar-wrap">
+          <div class="lb-admin-bar-bg">
+            <div class="lb-admin-bar-fill" style="width:${(e.score/10)*100}%"></div>
+          </div>
+        </div>
+        <div class="lb-admin-score">${e.score}/10</div>
+        <button class="lb-admin-del" title="Verwijder score"
+          onclick="deleteAdminScore('${esc(e.key)}','${esc(e.name)}')">🗑</button>
+      </div>`).join('');
+  });
+}
+
+window.deleteAdminScore = async (key, name) => {
+  if (!db) return;
+  if (!confirm(`Score van "${name}" verwijderen?`)) return;
+  await remove(ref(db, 'quiz_scores/' + key));
+};
+
+window.openLbAdminModal  = () => $('lbAdminOverlay').classList.add('open');
+window.closeLbAdminModal = () => $('lbAdminOverlay').classList.remove('open');
+$('lbAdminOverlay').addEventListener('click', e => {
+  if (e.target === $('lbAdminOverlay')) window.closeLbAdminModal();
+});
+
+/* ── Login modal ──────────────────────────── */
+window.openLoginModal  = () => { $('loginOverlay').classList.add('open'); $('loginError').textContent = ''; }
+window.closeLoginModal = () => $('loginOverlay').classList.remove('open');
+$('loginOverlay').addEventListener('click', e => {
+  if (e.target === $('loginOverlay')) window.closeLoginModal();
+});
 </script>
 
+<!-- ══════════════════════════════════════════════
+     QUIZ LOGICA
+══════════════════════════════════════════════ -->
 <script>
 const questions = [
-  { q:"Hoeveel suikerklontjes zitten er gemiddeld in een standaard pakje appelsap van 200ml?", opts:["Ongeveer 2 klontjes","Ongeveer 5 klontjes (21 gram suiker)","Ongeveer 8 klontjes","Er zit geen suiker in, want het is fruit"], correct:1, explain:"Een pakje appelsap van 200ml bevat gemiddeld zo'n 21 gram suiker — dat zijn ongeveer 5 suikerklontjes!" },
-  { q:"Welk vak in de 'Schijf van Vijf' is het grootst en vormt de basis van een gezonde maaltijd?", opts:["Zuivel, noten en vis","Groente en fruit","Smeer- en bereidingsvetten","Brood, graanproducten en aardappelen"], correct:1, explain:"Groente en fruit vormen het grootste vak van de Schijf van Vijf. Probeer elke dag minimaal 250g groente en 2 stuks fruit te eten." },
-  { q:"Wat wordt bedoeld met de term 'zonder toegevoegde suikers' op een etiket?", opts:["Het product bevat helemaal geen suiker","Er is geen extra suiker door de fabrikant toegevoegd (maar er kan wel natuurlijke suiker in zitten)","Het product is altijd gezonder dan de normale variant","Het product bevat alleen kunstmatige zoetstoffen"], correct:1, explain:"'Zonder toegevoegde suikers' betekent dat de fabrikant geen extra suiker heeft toegevoegd. Van nature aanwezige suikers kunnen nog steeds aanwezig zijn!" },
-  { q:"Waarom is het eten van een hele appel gezonder dan het drinken van een glas appelsap?", opts:["In een hele appel zitten meer vezels die de suikeropname vertragen","In appelsap zitten giftige stoffen van de schil","Een hele appel bevat minder calorieën dan sap","Er is geen verschil, suiker is suiker"], correct:0, explain:"Een hele appel bevat veel vezels. Die vezels vertragen de opname van suiker in je bloed, waardoor je geen snelle piek en dip krijgt." },
-  { q:"Welke supermarktstrategie wordt vaak gebruikt om ongezonde producten aan kinderen te verkopen?", opts:["Producten op de bovenste plank zetten","Kleurrijke verpakkingen op ooghoogte van kinderen plaatsen","Alleen groente en fruit bij de kassa leggen","Producten zonder plaatjes verkopen"], correct:1, explain:"Supermarkten plaatsen ongezonde producten bewust op ooghoogte van kinderen, met kleurrijke verpakkingen om de aandacht te trekken." },
-  { q:"Wat is een 'verborgen suiker'?", opts:["Suiker die met een microscoop moet worden gezocht","Suiker in producten waarvan je niet direct verwacht dat ze zoet zijn (zoals ketchup of pastasaus)","Suiker die alleen in de fabriek zichtbaar is","Suiker die pas ontstaat na het koken"], correct:1, explain:"Verborgen suikers zitten in producten zoals ketchup, pastasaus, soep of ontbijtgranen — producten die je niet direct als 'zoet' beschouwt." },
-  { q:"Wat is de beste dorstlesser volgens de Schijf van Vijf?", opts:["Light-frisdrank","Water en thee zonder suiker","Isotone sportdranken","Vruchtensap aangelengd met water"], correct:1, explain:"Water en thee zonder suiker zijn de beste keuze om dorst te lessen. Ze bevatten geen calorieën, suiker of kunstmatige toevoegingen." },
-  { q:"Welke naam op een etiket wijst NIET op een vorm van suiker?", opts:["Dextrose","Natrium (dit is zout)","Maltodextrine","Agavesiroop"], correct:1, explain:"Natrium is zout, geen suiker! Dextrose, maltodextrine en agavesiroop zijn allemaal vormen van suiker op etiketten." },
-  { q:"Wat doet te veel suiker met je concentratie op school?", opts:["Je krijgt een energie-dip (after-sugar crash) na een korte piek","Je kunt de hele dag beter opletten","Suiker heeft geen invloed op je hersenen","Je wordt er alleen maar rustiger van"], correct:0, explain:"Na een suikerpiek daalt je bloedsuikerspiegel snel weer. Die 'sugar crash' zorgt voor vermoeidheid en slechte concentratie." },
-  { q:"Waarom staan gezonde producten zoals groente vaak aan het begin van de supermarktroute?", opts:["Zodat ze niet geplet worden onder andere boodschappen","Zodat je een 'gezond' gevoel krijgt en later makkelijker ongezonde dingen koopt","Omdat groente het zwaarst is om te tillen","Groente moet altijd dicht bij de ingang staan voor de ventilatie"], correct:1, explain:"Als je eerst gezonde producten in je mandje legt, voel je je al 'goed bezig' en ben je later sneller geneigd iets ongezonds toe te voegen." }
+  { q:"Hoeveel suikerklontjes zitten er gemiddeld in een standaard pakje appelsap van 200ml?",
+    opts:["Ongeveer 2 klontjes","Ongeveer 5 klontjes (21 gram suiker)","Ongeveer 8 klontjes","Er zit geen suiker in, want het is fruit"],
+    correct:1, explain:"Een pakje appelsap van 200ml bevat gemiddeld zo'n 21 gram suiker — dat zijn ongeveer 5 suikerklontjes!" },
+  { q:"Welk vak in de 'Schijf van Vijf' is het grootst en vormt de basis van een gezonde maaltijd?",
+    opts:["Zuivel, noten en vis","Groente en fruit","Smeer- en bereidingsvetten","Brood, graanproducten en aardappelen"],
+    correct:1, explain:"Groente en fruit vormen het grootste vak van de Schijf van Vijf. Probeer elke dag minimaal 250g groente en 2 stuks fruit te eten." },
+  { q:"Wat wordt bedoeld met de term 'zonder toegevoegde suikers' op een etiket?",
+    opts:["Het product bevat helemaal geen suiker","Er is geen extra suiker door de fabrikant toegevoegd (maar er kan wel natuurlijke suiker in zitten)","Het product is altijd gezonder dan de normale variant","Het product bevat alleen kunstmatige zoetstoffen"],
+    correct:1, explain:"'Zonder toegevoegde suikers' betekent dat de fabrikant geen extra suiker heeft toegevoegd. Van nature aanwezige suikers kunnen nog steeds aanwezig zijn!" },
+  { q:"Waarom is het eten van een hele appel gezonder dan het drinken van een glas appelsap?",
+    opts:["In een hele appel zitten meer vezels die de suikeropname vertragen","In appelsap zitten giftige stoffen van de schil","Een hele appel bevat minder calorieën dan sap","Er is geen verschil, suiker is suiker"],
+    correct:0, explain:"Een hele appel bevat veel vezels. Die vezels vertragen de opname van suiker in je bloed, waardoor je geen snelle piek en dip krijgt." },
+  { q:"Welke supermarktstrategie wordt vaak gebruikt om ongezonde producten aan kinderen te verkopen?",
+    opts:["Producten op de bovenste plank zetten","Kleurrijke verpakkingen op ooghoogte van kinderen plaatsen","Alleen groente en fruit bij de kassa leggen","Producten zonder plaatjes verkopen"],
+    correct:1, explain:"Supermarkten plaatsen ongezonde producten bewust op ooghoogte van kinderen, met kleurrijke verpakkingen om de aandacht te trekken." },
+  { q:"Wat is een 'verborgen suiker'?",
+    opts:["Suiker die met een microscoop moet worden gezocht","Suiker in producten waarvan je niet direct verwacht dat ze zoet zijn (zoals ketchup of pastasaus)","Suiker die alleen in de fabriek zichtbaar is","Suiker die pas ontstaat na het koken"],
+    correct:1, explain:"Verborgen suikers zitten in producten zoals ketchup, pastasaus, soep of ontbijtgranen — producten die je niet direct als 'zoet' beschouwt." },
+  { q:"Wat is de beste dorstlesser volgens de Schijf van Vijf?",
+    opts:["Light-frisdrank","Water en thee zonder suiker","Isotone sportdranken","Vruchtensap aangelengd met water"],
+    correct:1, explain:"Water en thee zonder suiker zijn de beste keuze om dorst te lessen. Ze bevatten geen calorieën, suiker of kunstmatige toevoegingen." },
+  { q:"Welke naam op een etiket wijst NIET op een vorm van suiker?",
+    opts:["Dextrose","Natrium (dit is zout)","Maltodextrine","Agavesiroop"],
+    correct:1, explain:"Natrium is zout, geen suiker! Dextrose, maltodextrine en agavesiroop zijn allemaal vormen van suiker op etiketten." },
+  { q:"Wat doet te veel suiker met je concentratie op school?",
+    opts:["Je krijgt een energie-dip (after-sugar crash) na een korte piek","Je kunt de hele dag beter opletten","Suiker heeft geen invloed op je hersenen","Je wordt er alleen maar rustiger van"],
+    correct:0, explain:"Na een suikerpiek daalt je bloedsuikerspiegel snel weer. Die 'sugar crash' zorgt voor vermoeidheid en slechte concentratie." },
+  { q:"Waarom staan gezonde producten zoals groente vaak aan het begin van de supermarktroute?",
+    opts:["Zodat ze niet geplet worden onder andere boodschappen","Zodat je een 'gezond' gevoel krijgt en later makkelijker ongezonde dingen koopt","Omdat groente het zwaarst is om te tillen","Groente moet altijd dicht bij de ingang staan voor de ventilatie"],
+    correct:1, explain:"Als je eerst gezonde producten in je mandje legt, voel je je al 'goed bezig' en ben je later sneller geneigd iets ongezonds toe te voegen." }
 ];
 
 const LETTERS = ['A','B','C','D'];
 let current=0, score=0, answered=false, username='';
 let correctPositions=[], shuffledOpts=[];
 window._localScores = [];
+window._adminUser   = null;
+window._lastStatus  = null;
 
-function $(id){ return document.getElementById(id); }
+const $id = id => document.getElementById(id);
+
 function showScreen(id) {
-  ['screen-start','screen-quiz','screen-result'].forEach(s => $(s).style.display = s===id ? 'flex' : 'none');
-  $('result-footer').style.display = id==='screen-result' ? 'block' : 'none';
+  ['screen-start','screen-quiz','screen-result'].forEach(s => $id(s).style.display = s===id?'flex':'none');
+  $id('result-footer').style.display = id==='screen-result' ? 'block' : 'none';
 }
 
 function makePositions(n) {
-  const pool = Array.from({length:n}, (_,i)=>i%4);
+  const pool = Array.from({length:n},(_,i)=>i%4);
   for (let i=pool.length-1;i>0;i--) { const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
   for (let i=2;i<pool.length;i++) {
-    if (pool[i]===pool[i-1]&&pool[i]===pool[i-2]) {
-      for (let j=i+1;j<pool.length;j++) { if(pool[j]!==pool[i]){[pool[i],pool[j]]=[pool[j],pool[i]];break;} }
-    }
+    if (pool[i]===pool[i-1]&&pool[i]===pool[i-2])
+      for (let j=i+1;j<pool.length;j++) if(pool[j]!==pool[i]){[pool[i],pool[j]]=[pool[j],pool[i]];break;}
   }
   return pool;
 }
-function shuffle(a){ const b=[...a]; for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];} return b; }
-function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]];}return b;}
+function escQ(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
-// ── Privacy modal ──
-function openPrivacy() { document.getElementById('privacyModal').classList.add('open'); }
-function closePrivacy() { document.getElementById('privacyModal').classList.remove('open'); }
-function toggleConsent() {
-  const cb = $('consentCheck'); cb.checked = !cb.checked; checkConsent();
-}
-function checkConsent() {
-  if($('consentCheck').checked) { $('consentError').style.display='none'; }
-}
-document.getElementById('privacyModal').addEventListener('click', function(e){
-  if(e.target===this) closePrivacy();
-});
+/* Privacy modal */
+function openPrivacy()  { $id('privacyModal').classList.add('open'); }
+function closePrivacy() { $id('privacyModal').classList.remove('open'); }
+$id('privacyModal').addEventListener('click', e => { if(e.target===$id('privacyModal')) closePrivacy(); });
 
-// ── Start ──
+function toggleConsent(){ const c=$id('consentCheck'); c.checked=!c.checked; checkConsent(); }
+function checkConsent(){ if($id('consentCheck').checked) $id('consentError').style.display='none'; }
+
+/* Start */
 function handleStart() {
-  const val = $('usernameInput').value.trim();
+  const val = $id('usernameInput').value.trim();
   let ok = true;
-  if (val.length < 2) {
-    $('usernameError').style.display='block';
-    $('usernameInput').style.borderColor='var(--wrong)';
-    ok = false;
-  } else {
-    $('usernameError').style.display='none';
-    $('usernameInput').style.borderColor='var(--border)';
-  }
-  if (!$('consentCheck').checked) {
-    $('consentError').style.display='block';
-    ok = false;
-  } else {
-    $('consentError').style.display='none';
-  }
+  if (val.length < 2) { $id('usernameError').style.display='block'; $id('usernameInput').style.borderColor='var(--wrong)'; ok=false; }
+  else { $id('usernameError').style.display='none'; $id('usernameInput').style.borderColor='var(--border)'; }
+  if (!$id('consentCheck').checked) { $id('consentError').style.display='block'; ok=false; }
+  else { $id('consentError').style.display='none'; }
   if (!ok) return;
-  username = val;
-  current=0; score=0;
-  correctPositions = makePositions(questions.length);
-  showScreen('screen-quiz');
-  loadQuestion();
+  username=val; current=0; score=0;
+  correctPositions=makePositions(questions.length);
+  showScreen('screen-quiz'); loadQuestion();
 }
-$('usernameInput').addEventListener('keydown', e=>{ if(e.key==='Enter') handleStart(); });
+$id('usernameInput').addEventListener('keydown', e => { if(e.key==='Enter') handleStart(); });
 
-// ── Load question ──
+/* Load question */
 function loadQuestion() {
   answered = false;
-  const q = questions[current];
-  const pos = correctPositions[current];
-  const wrongs = shuffle(q.opts.map((t,i)=>({t,i})).filter(o=>o.i!==q.correct));
-  shuffledOpts = []; let wi=0;
-  for(let i=0;i<4;i++) shuffledOpts.push(i===pos ? {text:q.opts[q.correct],ok:true} : {text:wrongs[wi++].t,ok:false});
-
-  $('qNum').textContent = `Vraag ${current+1}`;
-  $('qText').textContent = q.q;
-  $('qLabel').textContent = `Vraag ${current+1} van ${questions.length}`;
-  $('scoreLabel').textContent = `${username} · Score: ${score}`;
-  $('progressFill').style.width = `${(current/questions.length)*100}%`;
-  $('feedback').className = 'feedback';
-  $('btnNext').className = 'btn-next';
-
-  const wrap = $('options'); wrap.innerHTML='';
+  const q=questions[current], pos=correctPositions[current];
+  const wrongs=shuffle(q.opts.map((t,i)=>({t,i})).filter(o=>o.i!==q.correct));
+  shuffledOpts=[]; let wi=0;
+  for(let i=0;i<4;i++) shuffledOpts.push(i===pos?{text:q.opts[q.correct],ok:true}:{text:wrongs[wi++].t,ok:false});
+  $id('qNum').textContent=`Vraag ${current+1}`;
+  $id('qText').textContent=q.q;
+  $id('qLabel').textContent=`Vraag ${current+1} van ${questions.length}`;
+  $id('scoreLabel').textContent=`${username} · Score: ${score}`;
+  $id('progressFill').style.width=`${(current/questions.length)*100}%`;
+  $id('feedback').className='feedback'; $id('btnNext').className='btn-next';
+  const wrap=$id('options'); wrap.innerHTML='';
   shuffledOpts.forEach((opt,i)=>{
     const d=document.createElement('div'); d.className='option';
-    d.innerHTML=`<div class="option-letter">${LETTERS[i]}</div><div class="option-text">${esc(opt.text)}</div>`;
-    d.onclick=()=>pick(i,d,pos,q);
-    wrap.appendChild(d);
+    d.innerHTML=`<div class="option-letter">${LETTERS[i]}</div><div class="option-text">${escQ(opt.text)}</div>`;
+    d.onclick=()=>pick(i,d,pos,q); wrap.appendChild(d);
   });
   const card=document.querySelector('.quiz-card');
   card.style.animation='none'; card.offsetHeight; card.style.animation='slideUp 0.4s ease both';
 }
 
-// ── Pick answer ──
-function pick(idx, el, correctIdx, q) {
+/* Pick */
+function pick(idx,el,correctIdx,q) {
   if(answered) return; answered=true;
   const all=document.querySelectorAll('.option');
   all.forEach(o=>o.classList.add('locked'));
-  const ok = idx===correctIdx;
-  if(ok){ score++; el.classList.add('correct'); $('feedback').className='feedback correct-fb show'; $('fbIcon').textContent='✓'; $('fbText').textContent=q.explain; }
-  else { el.classList.add('wrong'); all[correctIdx].classList.add('correct'); $('feedback').className='feedback wrong-fb show'; $('fbIcon').textContent='✗'; $('fbText').textContent=`Niet helemaal — ${q.explain}`; }
-  $('scoreLabel').textContent=`${username} · Score: ${score}`;
-  $('btnNext').className='btn-next show';
-  $('btnNext').textContent = current<questions.length-1 ? 'Volgende vraag →' : 'Bekijk resultaat →';
+  const ok=idx===correctIdx;
+  if(ok){ score++; el.classList.add('correct'); $id('feedback').className='feedback correct-fb show'; $id('fbIcon').textContent='✓'; $id('fbText').textContent=q.explain; }
+  else { el.classList.add('wrong'); all[correctIdx].classList.add('correct'); $id('feedback').className='feedback wrong-fb show'; $id('fbIcon').textContent='✗'; $id('fbText').textContent=`Niet helemaal — ${q.explain}`; }
+  $id('scoreLabel').textContent=`${username} · Score: ${score}`;
+  $id('btnNext').className='btn-next show';
+  $id('btnNext').textContent=current<questions.length-1?'Volgende vraag →':'Bekijk resultaat →';
 }
 
-function nextQuestion() {
-  current++;
-  if(current<questions.length) loadQuestion(); else showResult();
-}
+function nextQuestion() { current++; if(current<questions.length) loadQuestion(); else showResult(); }
 
-// ── Result ──
+/* Result */
 async function showResult() {
   showScreen('screen-result');
-  const pct = Math.round((score/questions.length)*100);
-  $('scoreNum').textContent=`${score}/10`;
-  $('statCorrect').textContent=score;
-  $('statWrong').textContent=questions.length-score;
-  $('statPct').textContent=`${pct}%`;
-  setTimeout(()=>{ $('ringFill').style.strokeDashoffset = 364.4-(pct/100)*364.4; },100);
-
+  const pct=Math.round((score/questions.length)*100);
+  $id('scoreNum').textContent=`${score}/10`;
+  $id('statCorrect').textContent=score;
+  $id('statWrong').textContent=questions.length-score;
+  $id('statPct').textContent=`${pct}%`;
+  setTimeout(()=>{ $id('ringFill').style.strokeDashoffset=364.4-(pct/100)*364.4; },100);
   const t=['Blijf leren! 📚','Bijna! 🌱','Goed bezig! 👍','Uitstekend! 🏆','Perfect! 🌟'];
   const m=['Geen zorgen — speel opnieuw en let op de uitleg bij elke vraag!','Je bent op de goede weg! Met wat extra kennis over etiketten word je nóg beter.','Solide score! Je hebt een goede basis over voeding.','Indrukwekkend! Je weet heel goed wat gezond eten inhoudt.','Geweldig — 10 uit 10! Jij bent een echte voedingsexpert. 🎉'];
-  const tier = pct===100?4:pct>=80?3:pct>=60?2:pct>=40?1:0;
-  $('resultTitle').textContent=t[tier];
-  $('resultMsg').textContent=m[tier];
-
-  let saved = false;
-  if(window._fbSave) saved = await window._fbSave(username, score);
-  if(!saved) {
-    const ex = window._localScores.findIndex(s=>s.name===username);
-    if(ex>=0){ if(score>window._localScores[ex].score) window._localScores[ex].score=score; }
+  const tier=pct===100?4:pct>=80?3:pct>=60?2:pct>=40?1:0;
+  $id('resultTitle').textContent=t[tier]; $id('resultMsg').textContent=m[tier];
+  let saved=false;
+  if(window._fbSave) saved=await window._fbSave(username,score);
+  if(!saved){
+    const ex=window._localScores.findIndex(s=>s.name===username);
+    if(ex>=0){if(score>window._localScores[ex].score) window._localScores[ex].score=score;}
     else window._localScores.push({name:username,score});
     window._localScores.sort((a,b)=>b.score-a.score);
   }
-
-  $('lbList').innerHTML='<div class="lb-loading"><div class="lb-dot"></div><div class="lb-dot"></div><div class="lb-dot"></div></div>';
-  if(window._fbListen) window._fbListen(drawLB);
-  else drawLB(window._localScores);
+  $id('lbList').innerHTML='<div class="lb-loading"><div class="lb-dot"></div><div class="lb-dot"></div><div class="lb-dot"></div></div>';
+  if(window._fbListen) window._fbListen(drawLb); else drawLb(window._localScores);
 }
 
-function drawLB(entries) {
-  const list=$('lbList');
-  if(!entries||entries.length===0){ list.innerHTML='<div class="lb-empty">Nog geen scores. Jij bent de eerste! 🎉</div>'; return; }
+function drawLb(entries){
+  const list=$id('lbList');
+  if(!entries||entries.length===0){list.innerHTML='<div class="lb-empty">Nog geen scores. Jij bent de eerste! 🎉</div>';return;}
   const rc=i=>i===0?'gold':i===1?'silver':i===2?'bronze':'';
   const re=i=>i===0?'🥇':i===1?'🥈':i===2?'🥉':i+1;
-  list.innerHTML = entries.map((e,i)=>`
+  list.innerHTML=entries.map((e,i)=>`
     <div class="lb-row ${e.name===username?'me':''}" style="animation-delay:${i*0.05}s">
       <div class="lb-rank ${rc(i)}">${re(i)}</div>
-      <div class="lb-name">${esc(e.name)}${e.name===username?'<span class="lb-you">▶ jij</span>':''}</div>
+      <div class="lb-name">${escQ(e.name)}${e.name===username?'<span class="lb-you">▶ jij</span>':''}</div>
       <div class="lb-bar-wrap"><div class="lb-bar-bg"><div class="lb-bar-fill" style="width:${(e.score/10)*100}%"></div></div></div>
       <div class="lb-val">${e.score}/10</div>
     </div>`).join('');
 }
 
-function restartQuiz() {
-  current=0; score=0;
+function restartQuiz(){
+  current=0;score=0;
   correctPositions=makePositions(questions.length);
-  $('ringFill').style.strokeDashoffset='364.4';
-  showScreen('screen-quiz');
-  loadQuestion();
+  $id('ringFill').style.strokeDashoffset='364.4';
+  showScreen('screen-quiz');loadQuestion();
 }
 </script>
 </body>
