@@ -318,7 +318,39 @@ h1,h2,h3{font-family:'Fraunces',serif;line-height:1.1}
         onkeydown="if(event.key==='Enter')joinQuiz()"/>
       <div class="field-error" id="nicknameError">Kies een naam van minimaal 2 tekens</div>
     </div>
+    <!-- Privacy consent -->
+    <div id="consentWrap" onclick="toggleConsent()" style="display:flex;align-items:flex-start;gap:10px;padding:13px 15px;background:var(--off);border:1.5px solid var(--border2);border-radius:10px;cursor:pointer;margin-bottom:6px;transition:border-color .18s">
+      <input type="checkbox" id="consentCheck" onclick="event.stopPropagation();checkConsent()" style="margin-top:3px;accent-color:var(--ink);width:15px;height:15px;flex-shrink:0;cursor:pointer"/>
+      <label for="consentCheck" style="font-size:13px;color:var(--ink3);line-height:1.55;cursor:pointer">
+        Ik ga akkoord dat mijn nickname en score worden opgeslagen in een leaderboard.
+        <a href="#" onclick="event.preventDefault();event.stopPropagation();openPrivacy()" style="color:var(--ink);text-decoration:underline">Privacybeleid</a>
+      </label>
+    </div>
+    <div class="field-error" id="consentError" style="margin-bottom:12px">Vink het vakje aan om door te gaan</div>
+    <div class="field-error" id="joinError" style="margin-bottom:12px;color:var(--red)"></div>
     <button class="btn btn-primary btn-full btn-lg" onclick="joinQuiz()">Deelnemen →</button>
+    <p style="text-align:center;margin-top:14px;font-size:12px">
+      <a href="#" onclick="event.preventDefault();openPrivacy()" style="color:var(--ink3);text-decoration:underline">🔒 Privacybeleid</a>
+    </p>
+  </div>
+
+  <!-- Privacy modal -->
+  <div id="privacyOverlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:2000;align-items:center;justify-content:center;padding:20px">
+    <div style="background:var(--white);border-radius:20px;padding:36px;max-width:560px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.2)">
+      <h2 style="font-size:1.4rem;margin-bottom:4px">🔒 Privacybeleid</h2>
+      <p style="font-size:11px;color:var(--ink3);margin-bottom:22px">Laatste update: juni 2025</p>
+      <h3 style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin:18px 0 7px">Wie zijn wij?</h3>
+      <p style="font-size:13.5px;color:var(--ink2);line-height:1.7;margin-bottom:8px">Deze quiz is een educatieve webapplicatie zonder commercieel doel.</p>
+      <h3 style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin:18px 0 7px">Welke gegevens?</h3>
+      <p style="font-size:13.5px;color:var(--ink2);line-height:1.7;margin-bottom:8px">Wij slaan uitsluitend op: jouw <strong>nickname</strong> (geen echte naam vereist), jouw <strong>score</strong> en een <strong>tijdstempel</strong>. Geen e-mailadressen, IP-adressen of locatiegegevens.</p>
+      <h3 style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin:18px 0 7px">Waarom?</h3>
+      <p style="font-size:13.5px;color:var(--ink2);line-height:1.7;margin-bottom:8px">Uitsluitend voor het tonen van een live leaderboard tijdens de quiz.</p>
+      <h3 style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin:18px 0 7px">Opslag</h3>
+      <p style="font-size:13.5px;color:var(--ink2);line-height:1.7;margin-bottom:8px">Firebase Realtime Database (Google LLC), EU-regio (Belgie). Geen cookies, geen tracking, geen advertenties.</p>
+      <h3 style="font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--green);margin:18px 0 7px">Jouw rechten (AVG)</h3>
+      <p style="font-size:13.5px;color:var(--ink2);line-height:1.7;margin-bottom:8px">Je hebt recht op inzage, correctie en verwijdering. Neem contact op met de beheerder van deze quiz.</p>
+      <button onclick="closePrivacy()" style="margin-top:20px;width:100%;padding:14px;background:var(--ink);color:#fff;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;border:none;border-radius:10px;cursor:pointer">Sluiten</button>
+    </div>
   </div>
 
   <!-- S2: Wachten op start -->
@@ -772,20 +804,36 @@ window.adminResetAll=async()=>{
 };
 
 /* ══ LEERLING LOGICA ══ */
+window.toggleConsent=()=>{ const c=$('consentCheck'); c.checked=!c.checked; checkConsent(); };
+window.checkConsent=()=>{ if($('consentCheck').checked) $('consentError').style.display='none'; };
+window.openPrivacy=()=>{ $('privacyOverlay').style.display='flex'; };
+window.closePrivacy=()=>{ $('privacyOverlay').style.display='none'; };
+
 window.joinQuiz=async()=>{
   const name=$('nicknameInput').value.trim();
-  if(name.length<2){$('nicknameError').style.display='block';return;}
-  $('nicknameError').style.display='none';
-  if(!db) return;
-  const stSnap=await get(ref(db,'session/state'));
-  const st=stSnap.val();
-  if(st&&st.phase!=='lobby'){ alert('De quiz is al bezig. Wacht op de volgende ronde.'); return; }
-  const pr=push(ref(db,'session/players'));
-  _myKey=pr.key; _myName=name;
-  await set(pr,{name,points:0});
-  showSScreen('sWaiting');
-  $('sWaitName').textContent=name;
-  listenStudentState();
+  let ok=true;
+  if(name.length<2){ $('nicknameError').style.display='block'; ok=false; }
+  else { $('nicknameError').style.display='none'; }
+  if(!$('consentCheck').checked){ $('consentError').style.display='block'; ok=false; }
+  else { $('consentError').style.display='none'; }
+  if(!ok) return;
+  $('joinError').style.display='none';
+  if(!db){ $('joinError').textContent='Geen verbinding met de server. Herlaad de pagina.'; $('joinError').style.display='block'; return; }
+  try {
+    const stSnap=await get(ref(db,'session/state'));
+    const st=stSnap.val();
+    if(st&&st.phase!=='lobby'){ alert('De quiz is al bezig. Wacht op de volgende ronde.'); return; }
+    const pr=push(ref(db,'session/players'));
+    _myKey=pr.key; _myName=name;
+    await set(pr,{name,points:0});
+    showSScreen('sWaiting');
+    $('sWaitName').textContent=name;
+    listenStudentState();
+  } catch(e) {
+    console.error('joinQuiz error:', e);
+    $('joinError').textContent='Kan niet deelnemen: '+( e.code==='PERMISSION_DENIED' ? 'toegang geweigerd — vraag de docent de Firebase rules te controleren.' : e.message||'onbekende fout');
+    $('joinError').style.display='block';
+  }
 };
 
 function listenStudentState(){
