@@ -603,6 +603,7 @@ let _myKey=null, _myName=null, _isAdmin=false;
 let _sTimer=null, _aTimer=null;
 let _answered=false, _currentQ=-1, _qStartTime=null;
 let _myCorrect=0, _myWrong=0, _myPoints=0;
+let _myLastCorrect=null, _myLastPts=0, _myLastQ=-1;
 
 /* ── splash ── */
 function hideSplash(){ const s=$('splash'); s.classList.add('fade'); setTimeout(()=>s.style.display='none',450); }
@@ -931,6 +932,20 @@ function handleStudentState(st){
   } else if(ph==='between'){
     stopSTimer();
     lockSOptions();
+    // Now reveal correct answer and show real feedback
+    if(_myLastQ===st.questionIndex){
+      const q=QUESTIONS[st.questionIndex];
+      const correctText=q.opts[q.correct];
+      st.shuffledOpts?.forEach((t,i)=>{
+        if(t===correctText) $(`sqOpt${i}`)?.classList.add('correct');
+      });
+      const banner=$('sqBanner');
+      banner.style='';
+      banner.className='sq-answered-banner show '+(_myLastCorrect?'correct-b':'wrong-b');
+      $('sqBannerIcon').textContent=_myLastCorrect?'✓':'✗';
+      $('sqBannerText').textContent=_myLastCorrect?'Goed! '+q.explain:'Fout — '+q.explain;
+      $('sqPtsEarned').textContent=_myLastCorrect?`+${_myLastPts} punten`:'+0 punten';
+    }
     $('sqWaitNext').classList.add('show');
   } else if(ph==='finished'){
     stopSTimer();
@@ -963,18 +978,24 @@ window.pickOption=async(idx)=>{
   const correctText=q.opts[q.correct];
   const isCorrect=st.shuffledOpts[idx]===correctText;
   lockSOptions();
-  st.shuffledOpts.forEach((t,i)=>{
-    if(t===correctText) $(`sqOpt${i}`)?.classList.add('correct');
-  });
-  $(`sqOpt${idx}`)?.classList.add(isCorrect?'correct':'wrong');
+  // Mark selected option visually (neutral, no correct/wrong yet)
+  $(`sqOpt${idx}`)?.classList.add('selected');
   const pts=isCorrect?earnedPts:0;
   if(isCorrect)_myCorrect++;else _myWrong++;
   _myPoints+=pts;
+  // Store answer data for reveal later
+  _myLastCorrect=isCorrect;
+  _myLastPts=pts;
+  _myLastQ=st.questionIndex;
+  // Show neutral "answered" message, no reveal yet
   const banner=$('sqBanner');
-  banner.className='sq-answered-banner show '+(isCorrect?'correct-b':'wrong-b');
-  $('sqBannerIcon').textContent=isCorrect?'✓':'✗';
-  $('sqBannerText').textContent=isCorrect?'Goed! '+q.explain:'Fout — '+q.explain;
-  $('sqPtsEarned').textContent=isCorrect?`+${pts} punten`:'+0 punten';
+  banner.className='sq-answered-banner show';
+  banner.style.background='var(--blue-bg)';
+  banner.style.border='1px solid #bfdbfe';
+  banner.style.color='#1d4ed8';
+  $('sqBannerIcon').textContent='✔';
+  $('sqBannerText').textContent='Antwoord opgeslagen! Wacht op de docent…';
+  $('sqPtsEarned').textContent='';
   await push(ref(db,`session/answers/q${st.questionIndex}`),{playerKey:_myKey,name:_myName,optionIndex:idx,correct:isCorrect,points:pts,ts:Date.now()});
   await update(ref(db,`session/players/${_myKey}`),{points:_myPoints});
 };
@@ -990,11 +1011,15 @@ function startSTimer(startedAt,qIdx){
     left<=5?$('sqTimer').classList.add('urgent'):$('sqTimer').classList.remove('urgent');
     if(left<=0&&!_answered){
       _answered=true; lockSOptions(); _myWrong++;
+      _myLastCorrect=false; _myLastPts=0; _myLastQ=_currentQ;
       const b=$('sqBanner');
-      b.className='sq-answered-banner show wrong-b';
+      b.style.background='var(--blue-bg)';
+      b.style.border='1px solid #bfdbfe';
+      b.style.color='#1d4ed8';
+      b.className='sq-answered-banner show';
       $('sqBannerIcon').textContent='⏱';
-      $('sqBannerText').textContent='Tijd is om! Je hebt geen antwoord gegeven.';
-      $('sqPtsEarned').textContent='+0 punten';
+      $('sqBannerText').textContent='Tijd is om! Wacht op de docent…';
+      $('sqPtsEarned').textContent='';
     }
   };
   tick(); _sTimerInt=setInterval(tick,250);
