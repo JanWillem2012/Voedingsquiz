@@ -571,6 +571,16 @@ const questions = [
 
 const letters = ['A','B','C','D'];
 let current = 0, score = 0, answered = false;
+let shuffledOpts = []; // shuffled options for current question, tracking correct index
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 function startQuiz() {
   document.getElementById('start').style.display = 'none';
@@ -583,6 +593,12 @@ function startQuiz() {
 function loadQuestion() {
   answered = false;
   const q = questions[current];
+
+  // Build indexed options and shuffle them
+  const indexed = q.opts.map((text, i) => ({ text, originalIdx: i }));
+  shuffledOpts = shuffle(indexed);
+  const newCorrect = shuffledOpts.findIndex(o => o.originalIdx === q.correct);
+
   document.getElementById('qNum').textContent = `Vraag ${current + 1}`;
   document.getElementById('qText').textContent = q.q;
   document.getElementById('qLabel').textContent = `Vraag ${current + 1} van ${questions.length}`;
@@ -595,11 +611,11 @@ function loadQuestion() {
 
   const opts = document.getElementById('options');
   opts.innerHTML = '';
-  q.opts.forEach((opt, i) => {
+  shuffledOpts.forEach((opt, i) => {
     const div = document.createElement('div');
     div.className = 'option';
-    div.innerHTML = `<div class="option-letter">${letters[i]}</div><div class="option-text">${opt}</div>`;
-    div.onclick = () => selectAnswer(i, div);
+    div.innerHTML = `<div class="option-letter">${letters[i]}</div><div class="option-text">${opt.text}</div>`;
+    div.onclick = () => selectAnswer(i, div, newCorrect, q);
     opts.appendChild(div);
   });
 
@@ -610,16 +626,15 @@ function loadQuestion() {
   card.style.animation = 'slideUp 0.4s ease both';
 }
 
-function selectAnswer(idx, el) {
+function selectAnswer(idx, el, correctIdx, q) {
   if (answered) return;
   answered = true;
 
-  const q = questions[current];
   const allOpts = document.querySelectorAll('.option');
   allOpts.forEach(o => o.classList.add('locked'));
 
   const fb = document.getElementById('feedback');
-  const isCorrect = idx === q.correct;
+  const isCorrect = idx === correctIdx;
 
   if (isCorrect) {
     score++;
@@ -629,7 +644,7 @@ function selectAnswer(idx, el) {
     document.getElementById('fbText').textContent = q.explain;
   } else {
     el.classList.add('wrong');
-    allOpts[q.correct].classList.add('correct');
+    allOpts[correctIdx].classList.add('correct');
     fb.className = 'feedback wrong-fb show';
     document.getElementById('fbIcon').textContent = '✗';
     document.getElementById('fbText').textContent = `Niet helemaal — ${q.explain}`;
