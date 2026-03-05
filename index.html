@@ -217,12 +217,205 @@
   .site-footer a { color: var(--accent); text-decoration: none; }
   .site-footer a:hover { text-decoration: underline; }
 
+  /* ════════════════════════════════
+     QUIZ GESLOTEN — FULLSCREEN
+  ════════════════════════════════ */
+  #screen-closed {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: var(--bg);
+    background-image:
+      radial-gradient(ellipse 70% 50% at 50% 0%, rgba(248,113,113,0.10), transparent),
+      radial-gradient(ellipse 50% 40% at 10% 100%, rgba(250,204,21,0.06), transparent);
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 24px;
+    animation: fadeIn 0.6s ease;
+  }
+  #screen-closed.visible { display: flex; }
+
+  /* Animated lock icon */
+  .closed-icon-wrap {
+    position: relative;
+    margin-bottom: 36px;
+    animation: floatUpDown 3s ease-in-out infinite;
+  }
+  @keyframes floatUpDown {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+  .closed-icon-ring {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: rgba(248,113,113,0.08);
+    border: 1.5px solid rgba(248,113,113,0.25);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 60px rgba(248,113,113,0.12), 0 0 0 20px rgba(248,113,113,0.04);
+  }
+  .closed-icon { font-size: 52px; line-height: 1; }
+
+  /* Pulse ring effect */
+  .closed-icon-wrap::before,
+  .closed-icon-wrap::after {
+    content: '';
+    position: absolute;
+    inset: -12px;
+    border-radius: 50%;
+    border: 1px solid rgba(248,113,113,0.2);
+    animation: ringPulse 2.5s ease-out infinite;
+  }
+  .closed-icon-wrap::after { animation-delay: 1.25s; }
+  @keyframes ringPulse {
+    0%   { transform: scale(0.95); opacity: 0.7; }
+    100% { transform: scale(1.35); opacity: 0; }
+  }
+
+  .closed-badge {
+    display: inline-flex; align-items: center; gap: 7px;
+    background: rgba(248,113,113,0.12);
+    border: 1px solid rgba(248,113,113,0.35);
+    color: #fca5a5;
+    font-size: 11px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+    padding: 5px 16px; border-radius: 99px; margin-bottom: 22px;
+  }
+  .closed-badge-dot {
+    width: 6px; height: 6px; border-radius: 50%; background: #f87171;
+    animation: pulse 1.5s infinite;
+  }
+
+  .closed-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    text-align: center;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+  .closed-title span { color: #f87171; }
+
+  .closed-msg {
+    font-size: clamp(14px, 2vw, 16px);
+    color: var(--muted);
+    font-weight: 300;
+    line-height: 1.7;
+    text-align: center;
+    max-width: 480px;
+    margin-bottom: 40px;
+  }
+  .closed-msg strong { color: var(--text); font-weight: 500; }
+
+  /* Custom message from Firebase */
+  .closed-custom-msg {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px 28px;
+    max-width: 480px;
+    width: 100%;
+    margin-bottom: 40px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.65;
+    display: none;
+  }
+  .closed-custom-msg.show { display: block; }
+  .closed-custom-msg .custom-label {
+    font-size: 10px; font-weight: 600; letter-spacing: 1.5px;
+    text-transform: uppercase; color: var(--accent);
+    margin-bottom: 8px;
+  }
+  .closed-custom-msg .custom-text {
+    font-size: 14.5px; color: var(--text); font-weight: 400;
+  }
+
+  .closed-divider {
+    width: 48px; height: 2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 99px; margin-bottom: 40px; opacity: 0.4;
+  }
+
+  .closed-footer {
+    font-size: 12px; color: var(--muted); text-align: center;
+    display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;
+  }
+  .closed-footer a { color: var(--accent); text-decoration: none; }
+  .closed-footer a:hover { text-decoration: underline; }
+  .closed-footer-dot { opacity: 0.3; }
+
+  /* Loading splash */
+  #screen-loading {
+    position: fixed; inset: 0; z-index: 10000;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 16px;
+    transition: opacity 0.4s ease;
+  }
+  #screen-loading.hidden { opacity: 0; pointer-events: none; }
+  .loading-logo { font-family: 'Playfair Display', serif; font-size: 1.8rem; font-weight: 900; }
+  .loading-logo span { color: var(--accent); }
+  .loading-dots { display: flex; gap: 6px; }
+  .loading-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); animation: bounce 1s infinite; }
+  .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
   @keyframes fadeDown { from{opacity:0;transform:translateY(-16px)} to{opacity:1;transform:translateY(0)} }
   @keyframes slideUp  { from{opacity:0;transform:translateY(20px)}  to{opacity:1;transform:translateY(0)} }
   @keyframes fadeIn   { from{opacity:0} to{opacity:1} }
 </style>
 </head>
 <body>
+
+<!-- ═══════ LOADING SPLASH ═══════ -->
+<div id="screen-loading">
+  <div class="loading-logo">Slim <span>Eten</span></div>
+  <div class="loading-dots">
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+    <div class="loading-dot"></div>
+  </div>
+</div>
+
+<!-- ═══════ QUIZ GESLOTEN (fullscreen) ═══════ -->
+<div id="screen-closed">
+  <div class="closed-badge">
+    <span class="closed-badge-dot"></span>
+    Quiz niet beschikbaar
+  </div>
+
+  <div class="closed-icon-wrap">
+    <div class="closed-icon-ring">
+      <span class="closed-icon">🔒</span>
+    </div>
+  </div>
+
+  <h1 class="closed-title">De quiz is<br><span>gesloten</span></h1>
+
+  <p class="closed-msg">
+    Deze quiz is momenteel niet beschikbaar.<br>
+    <strong>Kom later terug</strong> om mee te doen.
+  </p>
+
+  <!-- Optionele aangepaste boodschap vanuit Firebase -->
+  <div class="closed-custom-msg" id="closedCustomMsg">
+    <div class="custom-label">📢 Bericht van de beheerder</div>
+    <div class="custom-text" id="closedCustomText"></div>
+  </div>
+
+  <div class="closed-divider"></div>
+
+  <div class="closed-footer">
+    <a href="#" onclick="event.preventDefault();openPrivacy()">🔒 Privacybeleid</a>
+    <span class="closed-footer-dot">·</span>
+    <span>Slim Eten Quiz</span>
+    <span class="closed-footer-dot">·</span>
+    <span>Gegevens opgeslagen in EU (Firebase)</span>
+  </div>
+</div>
 
 <!-- ═══════ PRIVACY MODAL ═══════ -->
 <div class="modal-overlay" id="privacyModal">
@@ -371,12 +564,13 @@
 <div class="site-footer" id="result-footer" style="display:none">
   <a href="#" onclick="event.preventDefault();openPrivacy()">🔒 Privacybeleid</a> &nbsp;·&nbsp; Slim Eten Quiz
 </div>
+
+<!-- ═══════════════════════════════════════════════
+  FIREBASE — inclusief quiz_status listener
+════════════════════════════════════════════════ -->
 <script type="module">
 // ════════════════════════════════════════════
-// 🔧 STAP 1: Maak een project op https://console.firebase.google.com
-// STAP 2: Activeer "Realtime Database" en zet rules op:
-//   { "rules": { ".read": true, ".write": true } }   (voor testen)
-// STAP 3: Vervang onderstaande waarden met jouw eigen Firebase config
+// Firebase configuratie
 // ════════════════════════════════════════════
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyAEe_DHNTkaiv5XC2auAuPvSxFBIQlw9_I",
@@ -390,7 +584,7 @@ const FIREBASE_CONFIG = {
 };
 
 import { initializeApp }      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getDatabase, ref, push, onValue, query, orderByChild, limitToLast }
+import { getDatabase, ref, push, onValue, query, orderByChild, limitToLast, get }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
 let db = null;
@@ -402,11 +596,79 @@ if (FIREBASE_CONFIG.apiKey !== "JOUW_API_KEY") {
     db = getDatabase(app);
     window._firebaseOK = true;
     console.log("✅ Firebase verbonden");
-  } catch(e) { console.warn("Firebase init mislukt:", e); }
+  } catch(e) {
+    console.warn("Firebase init mislukt:", e);
+  }
 } else {
   document.getElementById('configNotice').style.display = 'block';
 }
 
+// ════════════════════════════════════════════
+// QUIZ STATUS — luistert realtime naar /quiz_status
+//
+// Zet in Firebase Realtime Database:
+//   quiz_status: {
+//     open: false,             ← true = quiz open, false = quiz gesloten
+//     message: "We gaan om 14:00 weer live!"   ← optioneel bericht (mag leeg)
+//   }
+// ════════════════════════════════════════════
+function initStatusListener() {
+  if (!window._firebaseOK || !db) {
+    // Geen Firebase → quiz gewoon open tonen
+    hideSplash();
+    return;
+  }
+
+  const statusRef = ref(db, 'quiz_status');
+
+  // Eerste keer: haal direct op zodat de loading splash snel verdwijnt
+  get(statusRef).then(snap => {
+    applyStatus(snap.val());
+    hideSplash();
+  }).catch(() => {
+    hideSplash(); // bij fout: toon de quiz gewoon
+  });
+
+  // Daarna: realtime updates (bijv. leraar sluit quiz terwijl leerling op pagina is)
+  onValue(statusRef, snap => {
+    applyStatus(snap.val());
+  });
+}
+
+function applyStatus(status) {
+  const closedScreen = document.getElementById('screen-closed');
+  const customMsgEl  = document.getElementById('closedCustomMsg');
+  const customTextEl = document.getElementById('closedCustomText');
+
+  // Als status null/undefined of open:true → quiz open
+  const isClosed = status && status.open === false;
+
+  if (isClosed) {
+    // Toon eventueel aangepaste boodschap
+    if (status.message && status.message.trim() !== '') {
+      customTextEl.textContent = status.message.trim();
+      customMsgEl.classList.add('show');
+    } else {
+      customMsgEl.classList.remove('show');
+    }
+    closedScreen.classList.add('visible');
+  } else {
+    closedScreen.classList.remove('visible');
+  }
+}
+
+function hideSplash() {
+  const splash = document.getElementById('screen-loading');
+  splash.classList.add('hidden');
+  setTimeout(() => { splash.style.display = 'none'; }, 450);
+}
+
+// Start de status-check zodra de module laadt
+initStatusListener();
+
+// ════════════════════════════════════════════
+// Scores opslaan & leaderboard
+// ════════════════════════════════════════════
 window._fbSave = async (name, score) => {
   if (!window._firebaseOK || !db) return false;
   try {
@@ -421,7 +683,6 @@ window._fbListen = (cb) => {
   onValue(q, snap => {
     const val = snap.val();
     if (!val) { cb([]); return; }
-    // Hoogste score per naam
     const best = {};
     Object.values(val).forEach(e => {
       if (!best[e.name] || e.score > best[e.name].score) best[e.name] = e;
@@ -476,9 +737,7 @@ function toggleConsent() {
   const cb = $('consentCheck'); cb.checked = !cb.checked; checkConsent();
 }
 function checkConsent() {
-  if($('consentCheck').checked) {
-    $('consentError').style.display='none';
-  }
+  if($('consentCheck').checked) { $('consentError').style.display='none'; }
 }
 document.getElementById('privacyModal').addEventListener('click', function(e){
   if(e.target===this) closePrivacy();
@@ -573,7 +832,6 @@ async function showResult() {
   $('resultTitle').textContent=t[tier];
   $('resultMsg').textContent=m[tier];
 
-  // Save score
   let saved = false;
   if(window._fbSave) saved = await window._fbSave(username, score);
   if(!saved) {
@@ -583,7 +841,6 @@ async function showResult() {
     window._localScores.sort((a,b)=>b.score-a.score);
   }
 
-  // Leaderboard
   $('lbList').innerHTML='<div class="lb-loading"><div class="lb-dot"></div><div class="lb-dot"></div><div class="lb-dot"></div></div>';
   if(window._fbListen) window._fbListen(drawLB);
   else drawLB(window._localScores);
